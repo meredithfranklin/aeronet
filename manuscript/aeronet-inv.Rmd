@@ -1,6 +1,6 @@
 ---
-title: Template for preparing your manuscript submission to Copernicus journals using RMarkdown
-journal: "`r rticles::copernicus_journal_abbreviations(journal_name = 'communication')`"
+title: Associations between optical, physical and chemical properties of aerosols measured at ground-based networks
+journal: "`r rticles::copernicus_journal_abbreviations(journal_name = 'acp')`"
 author:
   - given_name: Meredith
     surname: Franklin
@@ -10,10 +10,14 @@ author:
   - given_name: Meytar
     surname: Sorek-Hamer
     affiliation: 2
-    email: 
+    email:
+  - given_name: Olga  
+    surname: Kalashnikova
+    affiliation: 3 
   - given_name: David
     surname: Diner
     affiliation: 3
+    
 # If you have more than one corresponding author, add them manually using the following structure:
 # Two authors: \correspondence{Daniel Nüst (daniel.nuest@uni-muenster.de) and Josiah Carberry (j.carberry@orcid.org)}
 # Three authors or more: \correspondence{Daniel Nüst (daniel.nuest@uni-muenster.de), Josiah Carberry j.carberry@orcid.org), and Markus Konkol (m.konkol@wwu.de)}
@@ -23,13 +27,15 @@ affiliation:
   - code: 1
     address: University of Southern California, Los Angeles, CA, United States
   - code: 2
-    address: 
+    address: NASA Ames Research Center, Moffett Field, CA, USA
+  - code: 3
+    address: Jet Propulsion Laboratory, Pasadena, CA, USA
 abstract: |
   The abstract goes here.
   It can also be on _multiple lines_.
-bibliography: sample.bib
+bibliography: aeronet.bib
 running:
-  title: R Markdown Template for Copernicus
+  title: Physical and optical properties of aerosols
   author: Franklin et al.
 # This section is mandatory even if you declare that no competing interests are present.
 competinginterests: |
@@ -50,14 +56,14 @@ availability:
     use this to add a statement when having data sets and software code available
   sample: |
     use this section when having geoscientific samples available
-videosupplement: |
-  use this section when having video supplements available
+#videosupplement: |
+#  use this section when having video supplements available
 authorcontribution: |
-  Daniel wrote the package. Josiah thought about poterry. Markus filled in for a second author.
+  M. Franklin conducted analyses and wrote the manuscript. M. Sorek-Hamer conducted analyses and reviewed the manuscript. O. Kalashnikova and D. Diner conceptualized the study. D. Diner edited the manuscript.
 disclaimer: |
   We like Copernicus.
 acknowledgements: |
-  Thanks to the rticles contributors!
+  This work was supported by NASA Grant 80NSSC19K0225
 appendix: |
   \section{Figures and tables in appendices}
   Regarding figures and tables in appendices, the following two options are possible depending on your general handling of figures and tables in the manuscript environment:
@@ -80,7 +86,7 @@ output:
 
 \introduction
 
-A large body of literature has shown that satellite-derived aerosol optical depth (AOD), typically retrieved at 550 nm wavelength, reliably correlates with mass-volume concentrations of fine mode particulate matter with aerodynamic diameter less than 2.5 um (PM\tsub{2.5}). Studies that have used satellite observations to generate PM2.5 have been instrumental for air pollution - health effects research. 
+A large body of literature has shown that satellite-derived aerosol optical depth (AOD), typically retrieved at 550 nm wavelength, reliably correlates with mass-volume concentrations of fine mode particulate matter with aerodynamic diameter less than 2.5 um (PM$_{2.5}$). Studies that have used satellite observations to generate PM2.5 have been instrumental for air pollution - health effects research. 
 The associations between AOD and different chemical components of PM2.5 are lesser known. A handful of studies using the Multiangle Imaging SpectroRadiometer (MISR), an instrument onboard the NASA Terra satellite that provides observations of optical properties by particle type (size, shape, absorption), have provided evidence that different optical properties relate to different physical and chemical properties of particulate matter. Results have been somewhat inconsistent, showing differences depending on geographic area of analysis, optical components used, and statistical tools applied.
 The purpose of this analysis is to make a detailed examination of the statistical relationships between ground-level PM2.5 and PM2.5 chemical components (nitrate, sulfate, elemental carbon, organic carbon, dust) and optical measures of aerosols (e.g. aerosol optical depth, angstrom exponent).
 
@@ -106,17 +112,33 @@ See the defaults and examples from the skeleton and the official Copernicus docu
 **Important**: Always double-check with the official manuscript preparation guidelines at [https://publications.copernicus.org/for_authors/manuscript_preparation.html](https://publications.copernicus.org/for_authors/manuscript_preparation.html), especially the sections "Technical instructions for LaTeX" and "Manuscript composition".
 Please contact Daniel Nüst, `daniel.nuest@uni-muenster.de`, with any problems.
 
-# Content section one
+# Methods
 
-## Subsection Heading Here
+The study encompasses the San Joaquin Valley region of central California (Figure 1). We leverage datasets available at four sites - Bakersfield, Fresno, Modesto, and Visalia. At these sites there are co-located instruments from EPA’s chemical speciation network (CSN), EPA’s air quality system (AQS) and NASA’s AERONET network. 
 
-Subsection text here. 
+## Data
 
-### Subsubsection Heading Here
+The CSN monitors are on a 1 in 3 or 1 in 6 day sampling schedule, providing PM2.5 mass and component PM2.5 concentrations of metals (e.g. Aluminium Al, Silicon Si, Calcium Ca, Titanium Ti, Iron Fe) obtained from X-ray fluorescence (XRF), ions (nitrate NO$_{3}^-$ and sulfate SO$_4^{2-}$) from ion chromatography, and carbons (organic OC and elemental EC) from thermal/optical analysis. To quantify dust we use the following equation: 
+dust  =  2.2Al +  2.49Si +  1.63Ca +  1.94Ti +  2.42Fe
 
-Subsubsection text here. 
+The AQS monitors provide daily concentrations of PM2.5 mass by the EPA’s Federal Reference Method, which is the highest quality gravimetric measurement method used for regulatory purposes.
 
-# Content section with citations
+AERONET sites are sunphotometers providing a “ground-up” measurement of aerosol optical properties at multiple wavelengths and have been used extensively to validate “top-down” satellite observations of related properties. Wavelength-specific AOD and angstrom exponents are the primary sunphotometer variables. Using quadratic log-log interpolation we calculated AOD 550 nm from AOD 440, 500, 675, 870 nm in log-log space. AOD at 550 nm is the most common wavelength retrieved from satellite instruments. 
+A retrieval-based AERONET product, called the inversion product, provides an additional suite of aerosol properties that help distinguish size (fine, coarse effective radius), shape (asymmetry), and absorption. We excluded sunphotometer and inversion variables that had a significant proportion of missing data (~90% missing). A list of the variables included in the analysis are shown in the Appendix.
+In a separate test we examine data from the SPARTAN site in Rehovot, Israel. The SPARTAN network provides data for PM2.5 mass and speciation concentrations on an integrated 1 in 9 day sampling schedule, and is colocated with an AERONET site (We don’t have the speciation data for this site so we could only look at PM2.5 for now).
+
+
+
+## Statistical methods
+Prior to model building we examined a cluster-based correlation heat map (Figure 2), which provides the Pearson correlations between all pairs of AERONET variables grouped by a decision tree. To avoid collinearity in the regression models, we kept the most relevant of a group of variables that had a correlation coefficient > |0.9|.  We then examined and picked a subset of variables connected at the mid-tier level of the tree to construct interactions. 
+We fit simple linear regression models separately for PM2.5 mass, sulfate, nitrate, EC, OC, and dust with AOD 550 nm as the sole predictor variable. Multiple linear regression models were again fit separately for PM2.5 mass, sulfate, nitrate, EC, OC, and dust, but with the combined AERONET sunphotometer and inversion product as predictor variables and model selection was conducted using the “all possible subset method”. This method constructs models based on all combinations from 1 to k variable models.  We select the best model from the combinations based on highest R2, lowest RMSE, and Mallow’s Cp statistic that is close to k+1. 
+Model selection for the Fresno and Bakersfield sites were examined separately and in combination in a “total CA” analysis, which combined data from Fresno, Bakersfield, Modesto, Visalia, and a special DRAGON campaign in late 2012-early 2013 over the region (8 co-located sites with PM2.5 mass).
+
+All models were cross validated (CV) with 10-fold CV, and we report the CV R2 and RMSE. Models were fit in R using the leaps() library.
+
+
+
+# Results
 
 See the [R Markdown docs for bibliographies and citations](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html).
 

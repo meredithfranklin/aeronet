@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  27 APR 2020 15:35
+=======
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  18 JAN 2020 16:07
+>>>>>>> 611c28480113758943c16a833c2583a20900dbc4
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -685,6 +689,7 @@ LaTeX Info: Redefining \ref on input line 81.
 LaTeX Info: Redefining \pageref on input line 81.
 LaTeX Info: Redefining \nameref on input line 81.
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <17.28> not available
+<<<<<<< HEAD
 (Font)              Font shape `T1/ptm/b/n' tried instead on input line 123.
 LaTeX Font Info:    Try loading font information for U+msa on input line 123.
 (/usr/local/texlive/2019/texmf-dist/tex/latex/amsfonts/umsa.fd
@@ -726,6 +731,48 @@ Package pdftex.def Info: Nikolaus_Kopernikus.jpg  used on input line 324.
 (pdftex.def)             Requested size: 341.43306pt x 397.82806pt.
 
 Overfull \hbox (170.03976pt too wide) in paragraph at lines 366--372
+=======
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 122.
+LaTeX Font Info:    Try loading font information for U+msa on input line 122.
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Try loading font information for U+msb on input line 122.
+(/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <10> not available
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 122.
+LaTeX Font Info:    Try loading font information for T1+phv on input line 127.
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/t1phv.fd
+File: t1phv.fd 2001/06/04 scalable font definitions for T1/phv.
+)
+LaTeX Font Info:    Font shape `T1/phv/m/n' will be
+(Font)              scaled to size 8.54997pt on input line 127.
+LaTeX Font Info:    Try loading font information for T1+pcr on input line 159.
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/t1pcr.fd
+File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
+) [1
+
+{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2]
+LaTeX Font Info:    Try loading font information for TS1+pcr on input line 271.
+
+(/usr/local/texlive/2017/texmf-dist/tex/latex/psnfss/ts1pcr.fd
+File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
+) [3] [4] <Nikolaus_Kopernikus.jpg, id=51, 206.7725pt x 240.9pt>
+File: Nikolaus_Kopernikus.jpg Graphic file (type jpg)
+<use Nikolaus_Kopernikus.jpg>
+Package pdftex.def Info: Nikolaus_Kopernikus.jpg used on input line 317.
+(pdftex.def)             Requested size: 236.15796pt x 275.14345pt.
+LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <9> not available
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 317.
+File: Nikolaus_Kopernikus.jpg Graphic file (type jpg)
+<use Nikolaus_Kopernikus.jpg>
+Package pdftex.def Info: Nikolaus_Kopernikus.jpg used on input line 325.
+(pdftex.def)             Requested size: 341.43306pt x 397.82806pt.
+
+Overfull \hbox (170.03976pt too wide) in paragraph at lines 367--373
+>>>>>>> 611c28480113758943c16a833c2583a20900dbc4
 \T1/ptm/m/n/10 PAC: Quan-ti-ties, Units and Sym-bols in Phys-i-cal Chem-istry, 
 2nd Edn., Black-well Sci-ence, avail-able at: http://old.iupac.org/publications
 /books/gbook/green_book_2ed.pdf,
@@ -734,23 +781,36 @@ Overfull \hbox (170.03976pt too wide) in paragraph at lines 366--372
 [5
 
  <./Nikolaus_Kopernikus.jpg>] [6] [7]
+<<<<<<< HEAD
 Overfull \hbox (14.92061pt too wide) in paragraph at lines 435--443
+=======
+Overfull \hbox (14.92061pt too wide) in paragraph at lines 436--444
+>>>>>>> 611c28480113758943c16a833c2583a20900dbc4
 \T1/pcr/m/n/10 true\T1/ptm/m/n/10 ), or make sure your-self that the L[]T[]Xpac
 kages \T1/pcr/m/n/10 algorithms \T1/ptm/m/n/10 and \T1/pcr/m/n/10 algorithmicx 
 \T1/ptm/m/n/10 are in-stalled so that \T1/pcr/m/n/10 algorithm.sty
  []
 
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
+<<<<<<< HEAD
 put line 445.
+=======
+put line 446.
+>>>>>>> 611c28480113758943c16a833c2583a20900dbc4
 [8]pdfTeX warning (ext4): destination with the same identifier (name{equation.6
 .1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
+<<<<<<< HEAD
 l.479 \begin{reaction}
+=======
+l.480 \begin{reaction}
+>>>>>>> 611c28480113758943c16a833c2583a20900dbc4
                       pdfTeX warning (ext4): destination with the same identifi
 er (name{equation.6.2}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
+<<<<<<< HEAD
 l.482 \begin{reaction}
                       pdfTeX warning (ext4): destination with the same identifi
 er (name{equation.6.3}) has been already used, duplicate ignored
@@ -759,10 +819,21 @@ er (name{equation.6.3}) has been already used, duplicate ignored
 l.485 \begin{reaction}
                       
 Overfull \hbox (13.58418pt too wide) in paragraph at lines 500--502
+=======
+l.482 \end{reaction}\begin{reaction}
+                                    pdfTeX warning (ext4): destination with the
+ same identifier (name{equation.6.3}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.484 \end{reaction}\begin{reaction}
+                                    
+Overfull \hbox (13.58418pt too wide) in paragraph at lines 499--501
+>>>>>>> 611c28480113758943c16a833c2583a20900dbc4
 \T1/ptm/m/n/10 The con-clu-sion goes here. You can mod-ify the sec-tion name wi
 th \T1/pcr/m/n/10 \conclusions[modified heading if necessary]\T1/ptm/m/n/10 . 
  []
 
+<<<<<<< HEAD
 [9] (./aeronet-inv.bbl [10]) [11]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 600.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 600.
@@ -801,5 +872,50 @@ PDF statistics:
  213 PDF objects out of 1000 (max. 8388607)
  181 compressed objects within 2 object streams
  72 named destinations out of 1000 (max. 500000)
+=======
+[9] (./aeronet-inv.bbl [10]
+
+Package lineno Warning: Linenumber reference failed, 
+(lineno)                rerun to get it right.
+
+) [11]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 593.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 593.
+(./aeronet-inv.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 593.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 593.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 593.
+ ) 
+Here is how much of TeX's memory you used:
+ 10721 strings out of 492995
+ 151134 string characters out of 6132704
+ 276816 words of memory out of 5000000
+ 13975 multiletter control sequences out of 15000+600000
+ 49008 words of font info for 85 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 43i,8n,40p,326b,717s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
+exlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/te
+xlive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texl
+ive/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texliv
+e/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texliv
+e/2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/
+2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/201
+7/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2017/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2017/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2017/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2017/texmf-
+dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2017/te
+xmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2017/texmf-dist
+/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/local/texlive/2017/texmf-dist/fonts/
+type1/urw/times/utmb8a.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/urw/
+times/utmr8a.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/urw/times/utmr
+i8a.pfb>
+Output written on aeronet-inv.pdf (11 pages, 187455 bytes).
+PDF statistics:
+ 204 PDF objects out of 1000 (max. 8388607)
+ 172 compressed objects within 2 object streams
+ 69 named destinations out of 1000 (max. 500000)
+>>>>>>> 611c28480113758943c16a833c2583a20900dbc4
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -87,6 +87,7 @@ aerosols measured at ground-based networks}
 \Author[1]{Meredith}{Franklin}
 \Author[2]{Meytar}{Sorek-Hamer}
 \Author[3]{Olga}{Kalashnikova}
+\Author[3]{Michael}{Garay}
 \Author[3]{David}{Diner}
 
 
@@ -157,21 +158,24 @@ AERONET \cite{Holben1998, Shin2018, Shin2018b, Shin2019}
 \begin{itemize}
 \item
   Specific sections of the manuscript:
-\item
-  \texttt{running} with \texttt{title} and \texttt{author}
-\item
-  \texttt{competinginterests}
-\item
-  \texttt{copyrightstatement} (optional)
-\item
-  \texttt{availability} (strongly recommended if any used), one of
-  \texttt{code}, \texttt{data}, or \texttt{codedata}
-\item
-  \texttt{authorcontribution}
-\item
-  \texttt{disclaimer}
-\item
-  \texttt{acknowledgements}
+
+  \begin{itemize}
+  \item
+    \texttt{running} with \texttt{title} and \texttt{author}
+  \item
+    \texttt{competinginterests}
+  \item
+    \texttt{copyrightstatement} (optional)
+  \item
+    \texttt{availability} (strongly recommended if any used), one of
+    \texttt{code}, \texttt{data}, or \texttt{codedata}
+  \item
+    \texttt{authorcontribution}
+  \item
+    \texttt{disclaimer}
+  \item
+    \texttt{acknowledgements}
+  \end{itemize}
 \end{itemize}
 
 See the defaults and examples from the skeleton and the official
@@ -474,9 +478,11 @@ The reaction environment creates labels including the letter R, i.e.
 
 \begin{reaction}
 A \rightarrow B \\
-\end{reaction}\begin{reaction}
+\end{reaction}
+\begin{reaction}
 Coper \rightleftharpoons nicus \\
-\end{reaction}\begin{reaction}
+\end{reaction}
+\begin{reaction}
 Publi \leftrightarrow cations
 \end{reaction}
 
@@ -484,7 +490,7 @@ Publi \leftrightarrow cations
 
 Please use \texttt{\textbackslash{}unit\{\}} (allows to save the
 math/\texttt{\$} environment) and apply the exponential notation, for
-example ( 3.14,\unit{km\,h^{-1}} ) (using LaTeX mode:
+example \(3.14\,\unit{km\,h^{-1}}\) (using LaTeX mode:
 \texttt{\textbackslash{}(\ 3.14\textbackslash{},\textbackslash{}unit\{...\}\ \textbackslash{})})
 or \unit{0.872\,m\,s^{-1}} (using only
 \texttt{\textbackslash{}unit\{0.872\textbackslash{},m\textbackslash{},s\^{}\{-1\}\}}).
@@ -512,13 +518,19 @@ available} %% use this section when having data sets and software code available
 
 Regarding figures and tables in appendices, the following two options
 are possible depending on your general handling of figures and tables in
-the manuscript environment: \subsection{Option 1} If you sorted all
-figures and tables into the sections of the text, please also sort the
-appendix figures and appendix tables into the respective appendix
-sections. They will be correctly named automatically.
-\subsection{Option 2} If you put all figures after the reference list,
-please insert appendix tables and figures after the normal tables and
-figures.
+the manuscript environment:
+
+\subsection{Option 1}
+
+If you sorted all figures and tables into the sections of the text,
+please also sort the appendix figures and appendix tables into the
+respective appendix sections. They will be correctly named
+automatically.
+
+\subsection{Option 2}
+
+If you put all figures after the reference list, please insert appendix
+tables and figures after the normal tables and figures.
 
 To rename them correctly to A1, A2, etc., please add the following
 commands in front of them: \texttt{\textbackslash{}appendixfigures}

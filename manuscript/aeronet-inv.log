@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  27 APR 2020 15:56
+=======
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  27 APR 2020 15:41
+>>>>>>> 55a6b717422f7cf6e93167bc047ce627a53de310
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -706,6 +710,7 @@ LaTeX Font Info:    Font shape `T1/phv/m/n' will be
 
 {/usr/local/texlive/2019/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 
+<<<<<<< HEAD
 Package natbib Warning: Citation `Shin2018' on page 2 undefined on input line 1
 74.
 
@@ -736,6 +741,50 @@ Package pdftex.def Info: Nikolaus_Kopernikus.jpg  used on input line 403.
 (pdftex.def)             Requested size: 341.43306pt x 397.82806pt.
 
 Overfull \hbox (170.03976pt too wide) in paragraph at lines 445--451
+=======
+Package natbib Warning: Citation `Holben1998' on page 2 undefined on input line
+ 175.
+
+
+Package natbib Warning: Citation `Shin2018' on page 2 undefined on input line 1
+75.
+
+
+Package natbib Warning: Citation `Shin2018b' on page 2 undefined on input line 
+175.
+
+
+Package natbib Warning: Citation `Shin2019' on page 2 undefined on input line 1
+75.
+
+LaTeX Font Info:    Try loading font information for T1+pcr on input line 183.
+(/usr/local/texlive/2019/texmf-dist/tex/latex/psnfss/t1pcr.fd
+File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
+)
+
+Package natbib Warning: Citation `Chow2015' on page 2 undefined on input line 2
+26.
+
+[2] [3]
+LaTeX Font Info:    Try loading font information for TS1+pcr on input line 350.
+
+(/usr/local/texlive/2019/texmf-dist/tex/latex/psnfss/ts1pcr.fd
+File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
+) [4] [5]
+<Nikolaus_Kopernikus.jpg, id=51, 206.7725pt x 240.9pt>
+File: Nikolaus_Kopernikus.jpg Graphic file (type jpg)
+<use Nikolaus_Kopernikus.jpg>
+Package pdftex.def Info: Nikolaus_Kopernikus.jpg  used on input line 396.
+(pdftex.def)             Requested size: 236.15796pt x 275.14345pt.
+LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <9> not available
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 396.
+File: Nikolaus_Kopernikus.jpg Graphic file (type jpg)
+<use Nikolaus_Kopernikus.jpg>
+Package pdftex.def Info: Nikolaus_Kopernikus.jpg  used on input line 404.
+(pdftex.def)             Requested size: 341.43306pt x 397.82806pt.
+
+Overfull \hbox (170.03976pt too wide) in paragraph at lines 446--452
+>>>>>>> 55a6b717422f7cf6e93167bc047ce627a53de310
 \T1/ptm/m/n/10 PAC: Quan-ti-ties, Units and Sym-bols in Phys-i-cal Chem-istry, 
 2nd Edn., Black-well Sci-ence, avail-able at: http://old.iupac.org/publications
 /books/gbook/green_book_2ed.pdf,
@@ -744,35 +793,58 @@ Overfull \hbox (170.03976pt too wide) in paragraph at lines 445--451
 [6
 
  <./Nikolaus_Kopernikus.jpg>] [7] [8]
+<<<<<<< HEAD
 Overfull \hbox (14.92061pt too wide) in paragraph at lines 514--522
+=======
+Overfull \hbox (14.92061pt too wide) in paragraph at lines 515--523
+>>>>>>> 55a6b717422f7cf6e93167bc047ce627a53de310
 \T1/pcr/m/n/10 true\T1/ptm/m/n/10 ), or make sure your-self that the L[]T[]Xpac
 kages \T1/pcr/m/n/10 algorithms \T1/ptm/m/n/10 and \T1/pcr/m/n/10 algorithmicx 
 \T1/ptm/m/n/10 are in-stalled so that \T1/pcr/m/n/10 algorithm.sty
  []
 
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
+<<<<<<< HEAD
 put line 524.
+=======
+put line 525.
+>>>>>>> 55a6b717422f7cf6e93167bc047ce627a53de310
 [9]pdfTeX warning (ext4): destination with the same identifier (name{equation.7
 .1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
+<<<<<<< HEAD
 l.558 \begin{reaction}
+=======
+l.559 \begin{reaction}
+>>>>>>> 55a6b717422f7cf6e93167bc047ce627a53de310
                       pdfTeX warning (ext4): destination with the same identifi
 er (name{equation.7.2}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
+<<<<<<< HEAD
 l.561 \begin{reaction}
+=======
+l.562 \begin{reaction}
+>>>>>>> 55a6b717422f7cf6e93167bc047ce627a53de310
                       pdfTeX warning (ext4): destination with the same identifi
 er (name{equation.7.3}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
+<<<<<<< HEAD
 l.564 \begin{reaction}
                       
 Overfull \hbox (13.58418pt too wide) in paragraph at lines 579--581
+=======
+l.565 \begin{reaction}
+                      
+Overfull \hbox (13.58418pt too wide) in paragraph at lines 580--582
+>>>>>>> 55a6b717422f7cf6e93167bc047ce627a53de310
 \T1/ptm/m/n/10 The con-clu-sion goes here. You can mod-ify the sec-tion name wi
 th \T1/pcr/m/n/10 \conclusions[modified heading if necessary]\T1/ptm/m/n/10 . 
  []
 
+<<<<<<< HEAD
 [10] (./aeronet-inv.bbl [11]) [12]
 
 Package natbib Warning: There were undefined citations.
@@ -789,6 +861,28 @@ Here is how much of TeX's memory you used:
  149999 string characters out of 6129482
  284446 words of memory out of 5000000
  14136 multiletter control sequences out of 15000+600000
+=======
+[10] (./aeronet-inv.bbl [11]
+
+Package natbib Warning: Empty `thebibliography' environment on input line 10.
+
+) [12]
+
+Package natbib Warning: There were undefined citations.
+
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 680.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 680.
+(./aeronet-inv.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 680.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 680.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 680.
+ ) 
+Here is how much of TeX's memory you used:
+ 10494 strings out of 492616
+ 149804 string characters out of 6129482
+ 284165 words of memory out of 5000000
+ 14127 multiletter control sequences out of 15000+600000
+>>>>>>> 55a6b717422f7cf6e93167bc047ce627a53de310
  49008 words of font info for 85 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  43i,8n,40p,326b,719s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -809,10 +903,18 @@ xmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2019/texmf-dist
 type1/urw/times/utmb8a.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/urw/
 times/utmr8a.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/urw/times/utmr
 i8a.pfb>
+<<<<<<< HEAD
 Output written on aeronet-inv.pdf (12 pages, 191621 bytes).
 PDF statistics:
  214 PDF objects out of 1000 (max. 8388607)
  181 compressed objects within 2 object streams
  73 named destinations out of 1000 (max. 500000)
+=======
+Output written on aeronet-inv.pdf (12 pages, 190242 bytes).
+PDF statistics:
+ 201 PDF objects out of 1000 (max. 8388607)
+ 168 compressed objects within 2 object streams
+ 70 named destinations out of 1000 (max. 500000)
+>>>>>>> 55a6b717422f7cf6e93167bc047ce627a53de310
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 

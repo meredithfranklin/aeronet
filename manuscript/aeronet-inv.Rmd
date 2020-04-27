@@ -14,12 +14,9 @@ author:
   - given_name: Olga  
     surname: Kalashnikova
     affiliation: 3 
-<<<<<<< HEAD
   - given_name: Michael  
     surname: Garay
     affiliation: 3 
-=======
->>>>>>> 611c28480113758943c16a833c2583a20900dbc4
   - given_name: David
     surname: Diner
     affiliation: 3
@@ -95,10 +92,10 @@ output:
 <<<<<<< HEAD
 A large body of literature has shown that satellite-derived aerosol optical depth (AOD), typically retrieved at 550 nm wavelength, reliably correlates with mass-volume concentrations of fine mode particulate matter with aerodynamic diameter less than 2.5 $\mu$m (PM$_{2.5}$). Studies that have used satellite observations to generate PM$_{2.5}$ have been instrumental for air pollution - health effects research. 
 The associations between AOD and different chemical components of PM$_{2.5}$ are lesser known. A handful of studies using the Multiangle Imaging SpectroRadiometer (MISR), an instrument onboard the NASA Terra satellite that provides observations of optical properties by particle type (size, shape, absorption), have provided evidence that different optical properties relate to different physical and chemical properties of particulate matter. Results have been somewhat inconsistent, showing differences depending on geographic area of analysis, optical components used, and statistical tools applied.
-=======
+
 A large body of literature has shown that satellite-derived aerosol optical depth (AOD), typically retrieved at 550 nm wavelength, reliably correlates with mass-volume concentrations of fine mode particulate matter with aerodynamic diameter less than 2.5 um (PM$_{2.5}$). Studies that have used satellite observations to generate PM2.5 have been instrumental for air pollution - health effects research. 
 The associations between AOD and different chemical components of PM2.5 are lesser known. A handful of studies using the Multiangle Imaging SpectroRadiometer (MISR), an instrument onboard the NASA Terra satellite that provides observations of optical properties by particle type (size, shape, absorption), have provided evidence that different optical properties relate to different physical and chemical properties of particulate matter. Results have been somewhat inconsistent, showing differences depending on geographic area of analysis, optical components used, and statistical tools applied.
->>>>>>> 611c28480113758943c16a833c2583a20900dbc4
+
 The purpose of this analysis is to make a detailed examination of the statistical relationships between ground-level PM2.5 and PM2.5 chemical components (nitrate, sulfate, elemental carbon, organic carbon, dust) and optical measures of aerosols (e.g. aerosol optical depth, angstrom exponent).
 
 AERONET \cite{Holben1998, Shin2018, Shin2018b, Shin2019}
@@ -130,7 +127,6 @@ The study encompasses the San Joaquin Valley region of central California (Figur
 
 ## Data
 
-<<<<<<< HEAD
 The CSN monitors are on a 1-in-3 or 1-in-6 day sampling schedule, providing PM$_{2.5}$mass and component PM$_{2.5}$ concentrations of metals (e.g. Aluminium Al, Silicon Si, Calcium Ca, Titanium Ti, Iron Fe) obtained from X-ray fluorescence (XRF), ions (nitrate NO$_{3}^-$ and sulfate SO$_4^{2-}$) from ion chromatography, and carbons (organic OC and elemental EC) from thermal/optical analysis. To quantify dust we use the following equation @Chow2015: 
 dust  =  2.2Al +  2.49Si +  1.63Ca +  1.94Ti +  2.42Fe
 
@@ -139,7 +135,7 @@ The AQS monitors provide daily concentrations of PM$_{2.5}$ mass by the EPA’s 
 AERONET sites are sunphotometers providing a “ground-up” measurement of aerosol optical properties at multiple wavelengths and have been used extensively to validate “top-down” satellite observations of related properties. Wavelength-specific AOD and angstrom exponents are the primary sunphotometer variables. Using quadratic log-log interpolation we calculated AOD 550 nm from AOD 440, 500, 675, 870 nm in log-log space. AOD at 550 nm is the most common wavelength retrieved from satellite instruments. 
 A retrieval-based AERONET product, called the inversion product, provides an additional suite of aerosol properties that help distinguish size (fine, coarse effective radius), shape (asymmetry), and absorption. We excluded sunphotometer and inversion variables that had a significant proportion of missing data (~90% missing). A list of the variables included in the analysis are shown in the Appendix.
 In a separate test we examine data from the SPARTAN site in Rehovot, Israel. The SPARTAN network provides data for PM$_{2.5}$ mass and speciation concentrations on an integrated 1 in 9 day sampling schedule, and is colocated with an AERONET site (We don’t have the speciation data for this site so we could only look at PM$_{2.5}$ for now).
-=======
+
 The CSN monitors are on a 1 in 3 or 1 in 6 day sampling schedule, providing PM2.5 mass and component PM2.5 concentrations of metals (e.g. Aluminium Al, Silicon Si, Calcium Ca, Titanium Ti, Iron Fe) obtained from X-ray fluorescence (XRF), ions (nitrate NO$_{3}^-$ and sulfate SO$_4^{2-}$) from ion chromatography, and carbons (organic OC and elemental EC) from thermal/optical analysis. To quantify dust we use the following equation: 
 dust  =  2.2Al +  2.49Si +  1.63Ca +  1.94Ti +  2.42Fe
 
@@ -161,7 +157,7 @@ All models were cross validated (CV) with 10-fold CV, and we report the CV R2 an
 
 
 # Results
->>>>>>> 611c28480113758943c16a833c2583a20900dbc4
+
 
 
 

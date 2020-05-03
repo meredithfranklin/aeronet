@@ -29,22 +29,33 @@ library(leaflet)
 #AERONET AOD + EPA CSN PM
 #wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AODonly.pm.spec.csv")
 #vars <- fread(("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv"))
+# aeronet inversion with PM2.5 mass
 wdb.f <-fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.pm.data.csv")
 # replace -999 with NA
 wdb.f <- na_if(wdb.f, "-999")
+# aeronet inversion with PM2.5 speciation
+wdb.s <-fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.spec.data.csv")
+wdb.s <- na_if(wdb.s, "-999")
 ```
 
 # Map
 ```{r}
-pm.pal = colorNumeric(c('darkgreen','goldenrod','brown','brown'),
+pm.pal = colorNumeric(c('yellow','orange','chocolate2','chocolate3'),
                         domain=wdb.f$N)
-  leaflet(wdb.f) %>% 
+
+spec.pal = colorNumeric(c('darkblue','dodgerblue','purple','purple'),
+                        domain=wdb.s$N)
+
+  leaflet() %>% 
   addProviderTiles('Stamen.TonerLite') %>% 
-  addCircles(lat=~`Latitude(Degrees)`,lng=~`Longitude(Degrees)`, label=~Site_Name,color=~pm.pal(N),
+   addCircles(data=wdb.s, lat=~`Latitude(Degrees)_mean`,lng=~`Longitude(Degrees)_mean`,
+              label=~Site_Name,color=~spec.pal(N), opacity=1, fillOpacity=1, radius=75000) %>%
+    addCircles(data=wdb.f, lat=~`Latitude(Degrees)`,lng=~`Longitude(Degrees)`, label=~Site_Name,color=~pm.pal(N),
              opacity=1, fillOpacity=1, radius=50000) %>%
   addLegend('bottomleft', pal=pm.pal, values=wdb.f$N,
-            title='N', opacity=1)
-
+            title='N mass', opacity=1) %>%
+  addLegend('bottomleft', pal=spec.pal, values=wdb.s$N,
+            title='N spec', opacity=1)
 ```
 
 # List Directories

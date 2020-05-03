@@ -22,18 +22,35 @@ library(Hmisc)
 library(rlist)
 library(xgboost)
 library(caret)
+library(leaflet)
 ```
 ## Load the working data base
 ```{r}
 #AERONET AOD + EPA CSN PM
-wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AODonly.pm.spec.csv")
-vars <- fread(("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv"))
+#wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AODonly.pm.spec.csv")
+#vars <- fread(("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv"))
+wdb.f <-fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.pm.data.csv")
+# replace -999 with NA
+wdb.f <- na_if(wdb.f, "-999")
+```
+
+# Map
+```{r}
+pm.pal = colorNumeric(c('darkgreen','goldenrod','brown','brown'),
+                        domain=wdb.f$N)
+  leaflet(wdb.f) %>% 
+  addProviderTiles('Stamen.TonerLite') %>% 
+  addCircles(lat=~`Latitude(Degrees)`,lng=~`Longitude(Degrees)`, label=~Site_Name,color=~pm.pal(N),
+             opacity=1, fillOpacity=1, radius=50000) %>%
+  addLegend('bottomleft', pal=pm.pal, values=wdb.f$N,
+            title='N', opacity=1)
+
 ```
 
 # List Directories
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 #save results
-res_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/"
+#res_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/"
 
 ```
 #XGBoost

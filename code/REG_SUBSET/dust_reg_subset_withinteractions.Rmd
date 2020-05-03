@@ -1,0 +1,339 @@
+---
+title: "Dust - CA Central Valley - Find best subset of variables for multivariate regression"
+author: "Meytar Sorek-Hamer"
+date: "June 28, 2019"
+output:
+html_document: default
+pdf_document: default
+---
+
+#clean environment
+```{r}
+rm(list=ls()) 
+```
+# Require libraries
+```{r}
+library(leaps)
+library(ggvis)
+library(data.table)
+library(car)
+library(dplyr)
+library(ModelMetrics)
+```
+#load functions
+
+#Predict function
+```{r}
+predict.regsubsets =function (object ,newdata ,id ,...){
+  form=f#as.formula(object$call [[2]])
+  mat=model.matrix(form,newdata)
+  coefi=coef(object ,id=id)
+  xvars=names(coefi)
+  mat[,xvars]%*%coefi
+}
+```
+## Load the working data base
+```{r}
+#EPA speciation PM2.5----
+wdb.aod<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AODonly.pm.CSN.csv")
+wdb.aod$V1<-NULL
+
+wdb.inv<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AOD.pm.inv.CSN.csv")
+#calculate Dust
+wdb.inv$Dust <- 2.2 * wdb.inv$Al +
+  2.49 * wdb.inv$Si +
+  1.63 * wdb.inv$Ca +
+  1.94 * wdb.inv$Ti + 
+  2.42 * wdb.inv$Fe 
+```
+#initial variable list
+```{r}
+vars <- fread(("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv"))
+
+#final list of variables
+patterns <- c("Asymmetry_Factor","AOD","Dust","Angstrom_Exponent","Precipitable_Water(cm)","Solar_Zenith_Angle(Degrees)","REff")
+vars.new <- filter(vars, grepl(paste(patterns, collapse="|"), Var1))
+vars.new <- vars.new[,"Var1"]
+vars.new <- c(vars.new,"AOD_550")
+vars.new <- c(vars.new,"Dust")
+```
+#directory for saving results
+```{r}
+res_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/"
+```
+#create AOD/INV dataset----
+```{r}
+setDF(wdb.inv)
+inv.dataset <- wdb.inv[, colnames(wdb.inv) %in% vars.new ]
+
+#convert '-999
+inv.dataset[inv.dataset<0]<-NA
+inv.dataset <- cbind(inv.dataset,Site_Name=wdb.inv$Site_Name)
+
+#exclude vars with less than 90% availability
+inv.dataset <- inv.dataset[,colSums(is.na(inv.dataset))/dim(inv.dataset)[1]<0.2]
+setDF(inv.dataset)
+inv.dataset <- inv.dataset[,grep("^(?!.*Total)", colnames(inv.dataset), perl=TRUE)]
+setDT(inv.dataset)
+inv.dataset <- inv.dataset[,-c("AOD_340nm","Absorption_Angstrom_Exponent_440-870nm")]
+inv.dataset <- na.omit(inv.dataset)#653
+
+inv.fresno <- inv.dataset[Site_Name=="Fresno",]#520
+inv.fresno <- inv.fresno [,-c("Site_Name")]
+inv.baker<- inv.dataset[Site_Name=="Bakersfield",]#62
+inv.baker <- inv.baker [,-c("Site_Name")]
+
+aod.dataset <- na.omit(inv.dataset[,c("Dust","AOD_550","Site_Name")])
+aod.fresno <- aod.dataset[Site_Name=="Fresno",]#520
+aod.fresno <- aod.fresno [,-c("Site_Name")]
+aod.baker <- aod.dataset[Site_Name=="Bakersfield",]#62
+aod.baker <- aod.baker [,-c("Site_Name")]
+
+inv.dataset <- inv.dataset[,-c("Site_Name")]#632
+aod.dataset <- aod.dataset[,-c("Site_Name")]#632
+```
+#stats-Dust
+```{r}
+summary(inv.dataset$Dust)
+```
+
+#run dust-AOD_550
+```{r}
+#All
+print(paste0("All N = ",dim(aod.dataset)[1]))
+print(paste0("R2 = ",cor(aod.dataset$Dust,aod.dataset$AOD_550)^2))
+print(paste0("RMSE = ",rmse(lm(aod.dataset$Dust~aod.dataset$AOD_550))))
+
+#Fresno
+print(paste0("Fresno N = ",dim(aod.fresno)[1]))
+print(paste0("R2 = ",cor(aod.fresno$Dust,aod.fresno$AOD_550)^2))
+print(paste0("RMSE = ",rmse(lm(aod.fresno$Dust~aod.fresno$AOD_550))))
+
+#Bakersfield
+print(paste0("Bakersfield N = ",dim(aod.baker)[1]))
+print(paste0("R2 = ",cor(aod.baker$Dust,aod.baker$AOD_550)^2))
+print(paste0("RMSE = ",rmse(lm(aod.baker$Dust~aod.baker$AOD_550))))
+
+```
+#Run exhaustive regression subsetting----
+```{r}
+max.dim <- 20
+
+#10-fold Cross validation approach - choose best model
+f = Dust~.+
+  `440-675_Angstrom_Exponent`:`REff-C`+
+  `440-675_Angstrom_Exponent`:`Asymmetry_Factor-Coarse[675nm]`+
+   `Asymmetry_Factor-Coarse[675nm]`:`REff-C`+
+   `440-675_Angstrom_Exponent`:`REff-F`+
+    `440-675_Angstrom_Exponent`:`Asymmetry_Factor-Fine[675nm]`+
+   `Asymmetry_Factor-Fine[675nm]`:`REff-F`
+
+#10-fold Cross validation approach - choose best model
+
+k = 10 #folds
+set.seed(1)
+folds = sample(1:k,nrow(inv.dataset),replace=TRUE)
+table(folds)
+
+cv.errors <- r2 <- matrix(NA,k,max.dim, dimnames=list(NULL, paste(1:max.dim)))
+
+for(j in 1:k){
+  best.fit <- regsubsets(f, 
+                         data=inv.dataset[folds != j,], 
+                         nvmax = max.dim,
+                         method = "exhaustive")
+  
+  for (i in 1:(max.dim)){
+    pred <- predict.regsubsets(best.fit, inv.dataset[folds == j, ], id = i)
+    cv.errors[j, i] = sqrt(mean((inv.dataset$Dust[folds == j] - pred)^2))
+    r2[j,i] = cor(inv.dataset$Dust[folds == j] , pred)^2
+  }
+}
+
+mean.cv.errors = apply(cv.errors ,2,mean)
+plot(mean.cv.errors, pch = 19, type = "b")
+best_cv <- which.min(mean.cv.errors)
+
+mean.r2 = apply(r2 ,2,mean)
+plot(mean.r2, pch = 19, type = "b")
+
+#perform best model based on CV results
+
+coef(best.fit ,best_cv)
+```
+#variable contribution matrix
+```{r}
+reg.summary <- summary(best.fit,matrix.logical = TRUE)
+sum.mat <- as.data.frame(reg.summary$outmat)
+
+#summarise variables in each "best model"
+var.mat <- matrix(nrow=max.dim,ncol=max.dim)
+```
+#summary resulte best fit - all CV-CA
+```{r}
+for (i in 1:max.dim){
+  t <- which(sum.mat[i,]==TRUE)
+  sub <- names(sum.mat)[t]
+  var.mat[i,1:length(t)]<-sub
+}
+write.csv(var.mat,paste0(res_dir,"var.mat.Dust.csv"))
+
+paste0("Best CV model seq: ",best_cv)
+if (best_cv <10){
+ print(paste0("all N=",dim(inv.dataset)[1]))
+  print(paste0("all R2=",mean.r2[best_cv]))
+ print(paste0("all RMSE=",mean.cv.errors[best_cv]))
+ var.mat[best_cv,]
+} else {
+  print(paste0("all N=",dim(inv.dataset)[1]))
+  print(which.min(mean.cv.errors[1:10]));
+print(paste0("R2=",mean.r2[which.min(mean.cv.errors[1:10])]))
+print(paste0("RMSE=",mean.cv.errors[which.min(mean.cv.errors[1:10])]))
+ var.mat[which.min(mean.cv.errors[1:10]),]
+}
+
+```
+####################################################################################
+
+#FRESNO 10-fold Cross validation approach - choose best model
+```{r}
+k = 10 #folds
+set.seed(1)
+folds = sample(1:k,nrow(inv.fresno[]),replace=TRUE)
+table(folds)
+
+cv.errors <- r2 <- matrix(NA,k,max.dim, dimnames=list(NULL, paste(1:max.dim)))
+
+for(j in 1:k){
+  best.fit <- regsubsets(f, 
+                         data=inv.fresno[folds != j,], 
+                         nvmax = max.dim,
+                         method = "exhaustive")
+  
+  for (i in 1:(max.dim)){
+    pred <- predict.regsubsets(best.fit, inv.fresno[folds == j, ], id = i)
+    cv.errors[j, i] = sqrt(mean((inv.fresno$Dust[folds == j] - pred)^2))
+    r2[j,i] = cor(inv.fresno$Dust[folds == j] , pred)^2
+  }
+}
+
+mean.cv.errors = apply(cv.errors ,2,mean)
+plot(mean.cv.errors, pch = 19, type = "b")
+best_cv <- which.min(mean.cv.errors)
+
+mean.r2 = apply(r2 ,2,mean)
+plot(mean.r2, pch = 19, type = "b")
+
+#perform best model based on CV results
+
+coef(best.fit ,best_cv)
+```
+
+#variable contribution matrix
+```{r}
+reg.summary <- summary(best.fit,matrix.logical = TRUE)
+sum.mat <- as.data.frame(reg.summary$outmat)
+
+#summarise variables in each "best model"
+var.mat <- matrix(nrow=max.dim,ncol=max.dim)
+```
+#summary resulte best fit - all CV-CA
+```{r}
+for (i in 1:max.dim){
+  t <- which(sum.mat[i,]==TRUE)
+  sub <- names(sum.mat)[t]
+  var.mat[i,1:length(t)]<-sub
+}
+
+write.csv(var.mat,paste0(res_dir,"var.mat.Dust.fresno.csv"))
+```
+#summary results best fit - Fresno
+```{r}
+paste0("Best CV model seq: ",best_cv)
+if (best_cv <10){
+ print(paste0("all N=",dim(inv.fresno)[1]))
+  print(paste0("all R2=",mean.r2[best_cv]))
+ print(paste0("all RMSE=",mean.cv.errors[best_cv]))
+ var.mat[best_cv,]
+} else {
+  print(paste0("all N=",dim(inv.fresno)[1]))
+  print(which.min(mean.cv.errors[1:10]));
+print(paste0("R2=",mean.r2[which.min(mean.cv.errors[1:10])]))
+print(paste0("RMSE=",mean.cv.errors[which.min(mean.cv.errors[1:10])]))
+ var.mat[which.min(mean.cv.errors[1:10]),]
+}
+
+```
+####################################################################################
+
+#Bakersfield 10-fold Cross validation approach - choose best model
+```{r}
+k = 10 #folds
+set.seed(1)
+folds = sample(1:k,nrow(inv.baker[]),replace=TRUE)
+table(folds)
+
+cv.errors <- r2 <- matrix(NA,k,max.dim, dimnames=list(NULL, paste(1:max.dim)))
+
+for(j in 1:k){
+  best.fit <- regsubsets(f, 
+                         data=inv.baker[folds != j,], 
+                         nvmax = max.dim,
+                         method = "exhaustive")
+  
+  for (i in 1:(max.dim)){
+    pred <- predict.regsubsets(best.fit, inv.baker[folds == j, ], id = i)
+    cv.errors[j, i] = sqrt(mean((inv.baker$Dust[folds == j] - pred)^2))
+    r2[j,i] = cor(inv.baker$Dust[folds == j] , pred)^2
+  }
+}
+
+mean.cv.errors = apply(cv.errors ,2,mean)
+plot(mean.cv.errors, pch = 19, type = "b")
+best_cv <- which.min(mean.cv.errors)
+
+mean.r2 = apply(r2 ,2,mean)
+plot(mean.r2, pch = 19, type = "b")
+
+#perform best model based on CV results
+
+coef(best.fit ,best_cv)
+```
+
+#variable contribution matrix
+```{r}
+reg.summary <- summary(best.fit,matrix.logical = TRUE)
+sum.mat <- as.data.frame(reg.summary$outmat)
+
+#summarise variables in each "best model"
+var.mat <- matrix(nrow=max.dim,ncol=max.dim)
+```
+
+#Best variables - Bakersfield
+```{r}
+for (i in 1:max.dim){
+  t <- which(sum.mat[i,]==TRUE)
+  sub <- names(sum.mat)[t]
+  var.mat[i,1:length(t)]<-sub
+}
+
+write.csv(var.mat,paste0(res_dir,"var.mat.Dust.baker.csv"))
+```
+
+#summary results - Bakersfield
+```{r}
+paste0("Best CV model seq: ",best_cv)
+if (best_cv <10){
+ print(paste0("all N=",dim(inv.baker)[1]))
+  print(paste0("all R2=",mean.r2[best_cv]))
+ print(paste0("all RMSE=",mean.cv.errors[best_cv]))
+ var.mat[best_cv,]
+} else {
+  print(paste0("all N=",dim(inv.baker)[1]))
+  print(which.min(mean.cv.errors[1:10]));
+print(paste0("R2=",mean.r2[which.min(mean.cv.errors[1:10])]))
+print(paste0("RMSE=",mean.cv.errors[which.min(mean.cv.errors[1:10])]))
+ var.mat[which.min(mean.cv.errors[1:10]),]
+}
+
+```

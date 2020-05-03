@@ -1,0 +1,412 @@
+---
+title: "AERONET_PM_continuous_CA"
+author: "Meytar Sorek-Hamer"
+date: "January 18, 2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Libraries
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+library(purrr)
+library(tidyr)
+library(ggplot2)
+library(data.table)
+library(dplyr)
+library(Hmisc)
+library(rlist)
+```
+## Load the data
+# List Directories
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+#AERONET data
+aer_aot_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/AERONET/Stage2/Cont_AOT"
+aer_sda_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/AERONET/Stage2/Cont_SDA"
+aer_inv_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/AERONET/Stage2/Cont_INV"
+#aer_inv_pfn_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/AERONET/INV/INV_PFN"
+res_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/"
+
+#EPA
+epa_daily_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/EPA/Data/daily/spec"
+```
+
+# List files per directory
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+#Aeronet AOD files
+aer_aod <- list.files(path=aer_aot_dir,full.names = TRUE)
+#Aeronet SDA files
+aer_sda <- list.files(path=aer_sda_dir,full.names = TRUE)
+#Aeronet inversion  files
+aer_inv <- list.files(path=aer_inv_dir,full.names = TRUE)
+#aer_inv_pfn <- list.files(path=aer_inv_pfn_dir,full.names = TRUE)
+
+#EPA daily dust concentrations
+epa_daily <- list.files(path=epa_daily_dir,pattern="*.csv",full.names = TRUE)
+```
+
+# Read EPA dust data
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+l<-list()
+ind=1
+for (I in epa_daily){
+  l[[ind]] <- fread(I)
+  ind=ind+1
+}
+dust <- rbindlist(l) #all stations in the USA, 2000-2018, 4,688,508
+setnames(dust,"CBSA.Name","Site_Name")
+
+setnames(dust,"date","Date")
+dust$Date <- as.Date(dust$Date )
+
+dust$Site_Name <- 
+      dust$Site_Name %>% 
+      strsplit("\\,") %>% 
+      sapply("[", 1) 
+
+dust[dust$Site_Name=="Visalia-Porterville",]$Site_Name <- "Visalia"
+
+dust <- filter(dust,!is.na(Date))#5,497
+
+setDT(dust)
+#exclude days with negative levels
+dust[dust < 0] <- NA#5,495 obs
+
+#calculate DUST
+#Dust = 2.2Al +  2.49Si +  1.63Ca +  1.94Ti +  2.42Fe
+dust$Dust <- 2.2 * dust$Al +
+             2.49 * dust$Si +
+             1.63 * dust$Ca +
+             1.94 * dust$Ti + 
+             2.42 * dust$Fe
+  
+dust <- dust[,-c("latitude" , "longitude", "POC","temp_mean","temp_min" , "temp_max",  "atmpres"  )]
+
+dust%>%group_by(Site_Name)%>%summarise(N=n(),PM25=mean(PM25,na.rm=T),dust=mean(Dust,na.rm=T),N_date=length(unique(Date)),MinDate=min(Date,na.rm=T),MaxDate=max(Date,na.rm=T))
+
+#save
+#write.csv(dust,"C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/EPA.dust.csv")
+```
+
+#Read AERONET AOD-spec data
+```{r message=FALSE, warning=FALSE, paged.print=FALSE,include=FLASE}
+#AOD
+l<-list()
+for (I in aer_aod){
+  stn.name <- 
+      I %>% 
+      strsplit("\\.") %>% 
+      lapply(rev) %>% 
+      sapply("[", 2) %>% 
+      strsplit("\\d_")%>%
+      lapply(rev) %>% 
+      sapply("[", 1)
+  l[[stn.name]] <- fread(I,skip=6,fill=TRUE)
+}
+aer.aod <- rbindlist(l,fill=TRUE,idcol=TRUE) 
+setnames(aer.aod,".id","Site_Name")
+setnames(aer.aod,"Date(dd:mm:yyyy)","Date")
+setnames(aer.aod,"Time(hh:mm:ss)","hour")
+aer.aod$Date <- as.Date(aer.aod$Date,format="%d:%m:%Y" )
+
+#change site names
+aer.aod$Site_Name[aer.aod$Site_Name=="DRAGON_Bakersfield"] <- "Bakersfield"
+aer.aod$Site_Name[aer.aod$Site_Name=="Fresno_2"] <- "Fresno"
+aer.aod$Site_Name[aer.aod$Site_Name=="DRAGON_Visalia"] <- "Visalia"
+
+#remove duplicate columns
+coll <- which(aer.aod[,!duplicated(colnames(aer.aod))])
+aer.aod <- aer.aod[,..coll]
+
+#Daily averages from hourly data
+aer.aod.day <- aer.aod %>%
+          group_by(Site_Name,Date) %>%
+          summarise_all(.,mean) #4938; 3978 days
+
+setDT(aer.aod.day)
+aer.aod.day[aer.aod.day<0]<-NA
+
+#interpolate aeronet AOD to 550nm
+aer.aod.day$AOD_550 <- as.numeric(aer.aod.day$AOD_440nm)*(550/440)^(-(aer.aod.day$`440-675_Angstrom_Exponent`))
+
+vars <- fread(("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv"))
+
+setDF(aer.aod.day)
+aod <-aer.aod.day[,names(aer.aod.day) %in% vars$Var1 ]
+aod <- aod %>% select(-contains("N["))%>% select(-contains("Flux"))%>% select(-contains("(Dobson)"))%>% select(-contains("Exact"))
+aod <- cbind(aer.aod.day[,1:2],aod)
+
+aod%>%group_by(Site_Name)%>%summarise(N=n(),AOD=mean(AOD_550,na.rm=T),N_date=length(unique(Date)),MinDate=min(Date,na.rm=T),MaxDate=max(Date,na.rm=T))
+```
+#Merge ARONET and dust hourly based daily mean
+```{r}
+
+#Merge ARONET and dust daily mean
+aer.coll.d <- merge(aod,dust,by=c("Site_Name","Date")) #1,375 obs X 76 vars
+
+setDF(aer.coll.d )
+#exclude vars with less than 80% availability
+wdb.f <- aer.coll.d[,colSums(is.na(aer.coll.d))/dim(aer.coll.d)[1]<0.8]#1,375 obs X 58 vars
+
+#Save files
+#write.csv(aer.aod,paste0(res_dir,"aer.aod.cont.csv"))
+#write.csv(wdb.x,paste0(res_dir,"AODonly.dust.CSN.csv"))
+
+wdb.x%>%
+  group_by(Site_Name)%>%
+  summarise(N=n(),dust=mean(Dust,na.rm=T),PM25=mean(PM25,na.rm=T),AOD=mean(AOD_550,na.rm=T),N_date=length(unique(Date)))
+```
+
+#raw correlation
+```{r}
+ require(Metrics)
+wdb.x%>%
+            group_by(Site_Name)%>%
+            summarise(N=n(),r=cor(PM25,AOD_550,use='na.or.complete'), r2=cor(PM25,AOD_550,use='na.or.complete')^2,rmse=rmse(PM25, (lm(PM25~AOD_550,data=.))$fitted.values))
+
+```
+
+
+#Read AERONET INV data 
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+l<-list()
+for (I in aer_inv){
+  stn.name <- 
+      I %>% 
+      strsplit("\\_") %>% 
+      lapply(rev) %>% 
+      sapply("[", 1) %>% 
+      strsplit("\\.")%>%
+      lapply(rev) %>% 
+      sapply("[", 2)
+  l[[stn.name]] <- fread(I,skip=6,fill=TRUE)
+}
+aer.inv<- setDT(rbindlist(l,idcol=TRUE)) #daily 2679x242
+setnames(aer.inv,".id","Site_Name")
+setnames(aer.inv,"Date(dd:mm:yyyy)","Date")
+setnames(aer.inv,"Time(hh:mm:ss)","hour")
+aer.inv$Date <- as.Date(aer.inv$Date, format="%d:%m:%Y")    
+
+#change site names
+aer.inv$Site_Name[aer.inv$Site_Name=="2"] <- "Fresno"
+
+#merge data to collocated aeronet AOD dataset
+aot.dust.inv <- merge(aer.coll.d,aer.inv,by=c("Site_Name","Date"),all=TRUE)#4,450 x 276 vars
+
+setDF(aot.dust.inv )
+#exclude vars with less than 60% availability
+wdb.f <- aot.dust.inv[,colSums(is.na(aot.dust.inv))/dim(aot.dust.inv)[1]<0.4]#4,450 obs X 276 vars
+
+vars <- fread(("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv"))
+new <- data.frame(Var1="AOD_550",group=NA)
+vars<-rbind(vars,new)
+setDF(wdb.f)
+wdb.x <- wdb.f[,names(wdb.f) %in% vars$Var1 ]#4,450 obs X 63 vars
+
+wdb.x <- cbind(wdb.f[,1:2],wdb.x)
+
+#Save files
+# write.csv(wdb.x,paste0(res_dir,"AOD.dust.inv.CONT.csv"))
+
+```
+
+#Read AERONET SDA data
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+#SDA
+l<-list()
+for (I in aer_sda){
+  stn.name <- 
+      I %>% 
+      strsplit("\\.") %>% 
+      lapply(rev) %>% 
+      sapply("[", 2) %>% 
+      strsplit("\\d_")%>%
+      lapply(rev) %>% 
+      sapply("[", 1)
+  if (I==aer_sda[1]){
+  x1 <- fread(I,skip=6,fill=TRUE)
+  l[[stn.name]] <- x1[,-c("V35","V36")]
+  } else {
+   l[[stn.name]] <- fread(I,skip=6,fill=TRUE) 
+  }
+}
+aer.sda <- setDT(rbindlist(l,idcol=TRUE)) #2671x35
+setnames(aer.sda,".id","Site_Name")
+setnames(aer.sda,"Date_(dd:mm:yyyy)","Date")
+setnames(aer.sda,"Time_(hh:mm:ss)","hour")
+aer.sda$Date <- as.Date(aer.sda$Date, format="%d:%m:%Y")    
+
+#change site names
+aer.sda$Site_Name[aer.sda$Site_Name=="DRAGON_Bakersfield"] <- "Bakersfield"
+aer.sda$Site_Name[aer.sda$Site_Name=="Fresno_2"] <- "Fresno"
+
+ #merge data to collocated aeronet AOD dataset
+aot.dust.inv.sda <- merge(aot.dust.inv,aer.sda,by=c("Site_Name","Date"))#3859
+aot.dust.sda <- merge(aer.coll,aer.sda,by=c("Site_Name","Date"))#5831
+
+#Save files
+#write.csv(aot.dust.sda,paste0(aer_aot_dir,"aot.dust.sda.csv"))
+#write.csv(aot.dust.inv.sda ,paste0(aer_aot_dir,"aot.dust.inv.sda.csv"))
+```
+#SDA has very poor availability do in the first stage wont be included in analysis
+
+#Histogram of all variables
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+##AERONET AOD - all DRAGON stations 
+#Convert all character variables to numeric variables
+aer.aod <-aer.coll.inv
+
+#1:68 = AOD; 70:104 = sda; 106:343 = inv
+aer.aod <- aer.aod[,c(1:20,39:44,72:83,126:166,190:201)]
+#3:18 = AOD; 19:36 = sda; 37:89 = inv
+#remove 'hour' and 'julian day')
+aer.aod <- aer.aod[,-c(3:4)]
+
+#create source matrix
+source.aod<-setDF(aer.aod[,-c(1:2)])
+source.aod[source.aod=="N/A"]<-NA
+source.aod[!is.na(source.aod)]<-"1"
+source.aod <- cbind(aer.aod[,c(1:2)],source.aod)
+
+source.aod.0<-source.aod[,1:2]
+source.aod.1<-source.aod[,3:18]; source.aod.1[source.aod.1=='1']<-"AOD"
+source.aod.2<-source.aod[,19:36]; source.aod.2[source.aod.2=='1']<-"SDA"
+source.aod.3<-source.aod[,37:89]; source.aod.3[source.aod.3=='1']<-"INV"
+
+source<-cbind(source.aod.0,source.aod.1,source.aod.2,source.aod.3)
+
+#plot Data availability
+source.melt <- melt(source,id.vars=c("Site_Name","Date"))
+source.melt <- na.omit(source.melt)
+
+#plot availability bar chart
+ggplot(data=source.melt,aes(variable)) +
+    geom_bar(aes(fill=value,weight=1/120))+
+  ylab("% Availability")+xlab("")+
+    facet_wrap(~ Site_Name)+ 
+    theme(axis.text.x = element_blank())
+
+ggsave("C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/availability_bystation.png",width=15, height=7)
+
+ggplot(data=source.melt,aes(variable)) +
+    geom_bar(aes(fill=type,weight=1/1014))+
+    ylab("% Availability")+xlab("")+
+    theme(axis.text.x = element_text(size=rel(0.65),angle=45,hjust=1))
+
+ggsave("C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/availability_all.png",width=15, height=7)
+
+#list vars by type
+aod.vars<-names(source.aod.1)
+sda.vars<-names(source.aod.2)
+inv.vars<-names(source.aod.3)
+vars<-qpcR:::cbind.na(aod.vars, sda.vars,inv.vars)
+write.csv(vars,"C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/vars_type.csv")
+
+#count Data availability
+count<-source.melt%>%group_by(Site_Name)%>%summarise(sum.aod=sum(type=='AOD'),sum.sda=sum(type=='SDA'),sum.inv=sum(type=='INV'))
+write.csv(count,"C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/vars_avail.csv")
+
+#plot histogram per variable
+#convert all vars to numeric format
+time <- aer.aod[,c(1:2)]
+aer.aod.ch<-aer.aod[,-c(1:2)] %>%
+    keep(is.character)%>%
+aer.aod.ch[] <- lapply(aer.aod.ch, function(x) as.numeric(as.character(x)))
+aer.aod.num <- aer.aod[,-c(1:2)] %>%
+    keep(is.numeric)
+aer.aod <- cbind(time, aer.aod.ch,aer.aod.num)
+sum.vars <- colSums(is.na(aer.aod))/dim(aer.aod)[1]
+sum1<-c(names(which(sum.vars==1)))
+
+  aer.aod[,-..sum1]%>%
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) +
+    facet_wrap(~ key, scales = "free") +
+    geom_histogram(binwidth = 0.1, fill="black", col="grey")+
+    theme(axis.text = element_text(size=5),
+          strip.text.x = element_text(size = 7))
+
+  ggsave("C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/hist_all.png",width=15, height=7)
+
+  #Convert all character variables to numeric variables
+aer.sda <- aer.sda[,c(1:15)]
+
+#plot histogram per variable
+aer.sda%>%
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) +
+    facet_wrap(~ key, scales = "free") +
+    geom_histogram(binwidth = 0.1, fill="black", col="grey")
+
+##EPA dust Conc
+#plot histogram per variable
+dust.coll%>%
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) +
+    facet_wrap(~ key, scales = "free") +
+    geom_histogram(bins=100,fill="black", col="grey")
+```
+ 
+## Availability Plot
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+#Check availability per station
+stn.name <- unique(aeronet.m$Site_Name)
+date <- unique(aeronet.m$Date)#120 out of 150
+
+avail.by.stn <- aeronet.m %>% 
+  group_by(Site_Name)%>%
+  summarise(N=n())
+#save file - availability by station
+write.csv(avail.by.stn,paste0(aer_aot_dir,"avail.by.stn.csv"))
+  
+  ###
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(date,value)) +
+    facet_wrap(~ key, scales = "free") +
+    geom_histogram(binwidth = 0.1, fill="black", col="grey")
+
+df <- data.frame(year,group,value)
+df$value[df$value==1] <- NA
+
+no_na_df <- df[complete.cases(df), ]
+
+ggplot(no_na_df, aes(x=year, y = group)) + 
+    geom_errorbarh(aes(xmax = year, xmin = year), size = 2)
+```
+
+
+#save wdb 
+```{r}
+write.csv(aot.dust.inv,"C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/wdb_pm.cont.csv")
+
+```
+
+#extract list of variables from 352
+```{r}
+vars.list <- fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv")
+vars.list <- as.list(vars.list)  
+setDT(aot.dust.inv)
+wdb.ex <- aot.dust.inv[,which(colnames(aot.dust.inv) %in% vars.list[[1]]),with=FALSE]#14,465X81
+#wdb.ex[wdb.ex=='N/A']<-NA
+wdb.ex[wdb.ex=='-999']<-NA
+wdb.ex <- cbind(aot.dust.inv[,1:2],wdb.ex)
+
+#remove duplicate rows
+row <- unique(wdb.ex)
+
+
+#exclude vars with less than 90% availability
+wdb.f <- wdb.ex[,(colSums(is.na(wdb.ex)/dim(wdb.ex)[1]))<0.1,with=FALSE]
+write.csv(wdb.f,"C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/wdb.cont.csv")
+write.csv(names(wdb.f),"C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/wdb.cont.vars.csv")
+```
+
+#

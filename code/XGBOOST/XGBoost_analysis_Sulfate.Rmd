@@ -1,0 +1,236 @@
+---
+title: "AERONET_Sulfatespec_Analysis"
+author: "Meytar Sorek-Hamer"
+date: "April 11, 2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Libraries
+```{r,echo=FALSE,include=FALSE}
+library(purrr)
+library(tidyr)
+library(ggplot2)
+library(data.table)
+library(dplyr)
+library(Hmisc)
+library(rlist)
+library(xgboost)
+library(caret)
+```
+## Load the working data base
+#AERONET AOD + EPA CSN sulfate
+```{r}
+
+wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AODonly.pm.spec.csv")
+vars <- fread(("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv"))
+```
+
+# List Directories
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+#save results
+res_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/"
+
+```
+#XGBoost
+```{r,echo=T,results='hide'}
+#clean working database to complete cases
+dataset <- wdb.f[,c(5:19,62)]
+setDF(dataset)
+dataset <-Filter(function(x)!all(is.na(x)), dataset )
+dataset<-dataset[which(!is.na(dataset$sulfate)),]
+setDT(dataset)
+#exclude vars with less than 90% availability
+dataset <- dataset[,(colSums(is.na(dataset)/dim(dataset)[1]))<0.1,with=FALSE]#423*59 vars
+dataset<-dataset[complete.cases(dataset),]#653
+
+#XGBoost
+tune_grid <- expand.grid(nrounds = 100,
+                         max_depth = 5,
+                         eta = 0.05,
+                         gamma = 0.01,
+                         colsample_bytree = 0.75,
+                         min_child_weight = 0,
+                         subsample = 0.5)
+# Run algorithms using 10-fold cross validation
+control <- trainControl(method="cv", number=10,verboseIter=TRUE)
+
+fit.xgb <- train(sulfate~., data=dataset, method = "xgbTree",
+                 trControl=control,
+                 tuneGrid = tune_grid,
+                 tuneLength = 10, importance=TRUE)
+#saveRDS(fit.xgb,paste0(res_dir,"fit.xgb.train.rds"))
+```
+#results
+```{r}
+print(fit.xgb)
+
+```
+
+##importance of Variables
+#interpretation with SHAP-all vars
+```{r}
+library(xgboost)
+source('~/R/Scripts/functions/shap.R')
+wdb.na <- setDT(dataset)
+#arrange data
+names(wdb.na) <- sub("_","",names(wdb.na))
+names(wdb.na) <- sub("-","",names(wdb.na))
+names(wdb.na) <- sub("[","",names(wdb.na),fixed=TRUE)
+names(wdb.na) <- sub("]","",names(wdb.na))
+data_2 <- wdb.na[,-c("sulfate")]
+
+data_dmy = dummyVars(" ~ .", data = data_2, fullRank=T)
+data_x = predict(data_dmy, newdata = data_2)
+
+## Create the xgboost model
+model_xgb = xgboost(data = data_x, 
+                   nround = 10, 
+                   objective="reg:linear",
+                   label= wdb.na$sulfate)  
+
+## Calculate shap values
+shap_result = shap.score.rank(xgb_model = model_xgb, 
+                              X_train =data_x,
+                              shap_approx = F)
+
+# `shap_approx` comes from `approxcontrib` from xgboost documentation. 
+# Faster but less accurate if true. Read more: help(xgboost)
+
+## Plot var importance based on SHAP
+var_importance(shap_result, top_n=10)
+
+## Prepare data for top N variables
+shap_long <- shap.prep(shap = shap_result,
+                           X_train = data_x , 
+                           top_n = 10)
+
+source('~/R/Scripts/functions/plot.shap.summary.R') #Thanks to Y.LIU (MSSM)
+plot.shap.summary(shap_long)#Plot shap overall metrics
+tiff(paste0(res_dir,"shap_sulfateAOD_CA.tif"), res = 300)
+plot.shap.summary(shap_long)#Plot shap overall metrics
+dev.off()
+
+## SHAP plot per variable 
+# tiff(paste0(res_dir,"shap1_ca_pervar.tif"))
+# xgb.plot.shap(data = data_x, # input data
+#               model = model_xgb, # xgboost model
+#               features = names(shap_result$mean_shap_score[1:10]), # only top 10 var
+#               n_col = 3, # layout option
+#               plot_loess = T # add red line to plot
+#               )
+# dev.off()
+
+# Do some classical plots
+#ggplotgui::ggplot_shiny(wdb.na)
+```
+#AERONET AOD + INV + EPA CSN
+
+## Load the working data base
+```{r}
+wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AOD.pm.inv_CA.csv")#739 obs
+
+```
+
+#XGBoost
+```{r,echo=T,results='hide'}
+#clean working database to complete cases
+setDF(wdb.f)
+dataset <- wdb.f[,  names(wdb.f)%in%vars$Var1]
+dataset <- cbind(dataset,sulfate=wdb.f$sulfate)
+dataset$PM25<-NULL
+dataset[dataset=='-999']<-NA
+dataset <-Filter(function(x)!all(is.na(x)), dataset )
+dataset<-dataset[which(!is.na(dataset$sulfate)),]
+#exclude vars with less than 90% availability
+setDT(dataset)
+dataset <- dataset[,(colSums(is.na(dataset)/dim(dataset)[1]))<0.1,with=FALSE]#423*59 vars
+dataset<-dataset[complete.cases(dataset),]#653
+
+#XGBoost
+tune_grid <- expand.grid(nrounds = 100,
+                         max_depth = 5,
+                         eta = 0.05,
+                         gamma = 0.01,
+                         colsample_bytree = 0.75,
+                         min_child_weight = 0,
+                         subsample = 0.5)
+# Run algorithms using 10-fold cross validation
+control <- trainControl(method="cv", number=10,verboseIter=TRUE)
+
+fit.xgb <- train(sulfate~., data=dataset, method = "xgbTree",
+                 trControl=control,
+                 tuneGrid = tune_grid,
+                 tuneLength = 10, importance=TRUE)
+#saveRDS(fit.xgb,paste0(res_dir,"fit.xgb.train.rds"))
+```
+#results 
+```{r}
+print(fit.xgb)
+```
+
+##importance of Variables
+#interpretation with SHAP-all vars
+```{r}
+
+source('~/R/Scripts/functions/shap.R')
+wdb.na <- setDT(dataset)
+#arrange data
+names(wdb.na) <- sub("_","",names(wdb.na))
+names(wdb.na) <- sub("-","",names(wdb.na))
+names(wdb.na) <- sub("[","",names(wdb.na),fixed=TRUE)
+names(wdb.na) <- sub("]","",names(wdb.na))
+data_2 <- wdb.na[,-c("sulfate")]
+
+data_dmy = dummyVars(" ~ .", data = data_2, fullRank=T)
+data_x = predict(data_dmy, newdata = data_2)
+
+## Create the xgboost model
+model_xgb = xgboost(data = data_x, 
+                   nround = 10, 
+                   objective="reg:linear",
+                   label= wdb.na$sulfate)  
+
+## Calculate shap values
+shap_result = shap.score.rank(xgb_model = model_xgb, 
+                              X_train =data_x,
+                              shap_approx = F)
+
+# `shap_approx` comes from `approxcontrib` from xgboost documentation. 
+# Faster but less accurate if true. Read more: help(xgboost)
+
+## Plot var importance based on SHAP
+var_importance(shap_result, top_n=10)
+
+## Prepare data for top N variables
+shap_long <- shap.prep(shap = shap_result,
+                           X_train = data_x , 
+                           top_n = 10)
+
+source('~/R/Scripts/functions/plot.shap.summary.R') #Thanks to Y.LIU (MSSM)
+plot.shap.summary(shap_long)#Plot shap overall metrics
+tiff(paste0(res_dir,"shap_sulfateAODINV_CA.tif"), res = 300)
+plot.shap.summary(shap_long)#Plot shap overall metrics
+dev.off()
+
+## SHAP plot per variable 
+# tiff(paste0(res_dir,"shap1_ca_pervar.tif"))
+# xgb.plot.shap(data = data_x, # input data
+#               model = model_xgb, # xgboost model
+#               features = names(shap_result$mean_shap_score[1:10]), # only top 10 var
+#               n_col = 3, # layout option
+#               plot_loess = T # add red line to plot
+#               )
+# dev.off()
+
+# Do some classical plots
+#ggplotgui::ggplot_shiny(wdb.na)
+```
+
+
+

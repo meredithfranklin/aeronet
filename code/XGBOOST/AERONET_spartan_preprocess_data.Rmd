@@ -1,0 +1,227 @@
+---
+title: "AERONET_spartan_INV"
+author: "Meytar Sorek-Hamer"
+date: "April 1, 2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Libraries
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+library(purrr)
+library(tidyr)
+library(ggplot2)
+library(data.table)
+library(dplyr)
+library(Hmisc)
+library(rlist)
+```
+## Load the data
+# List Directories
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+
+#AERONET data
+aer_aot_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/AERONET/stage2/spartan/AOD"
+aer_sda_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/AERONET/stage2/spartan/SDA"
+aer_inv_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/AERONET/stage2/spartan/INV"
+
+res_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/"
+
+#spartan pm data
+epa_daily_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/AERONET/stage2/spartan/pm"
+#list of spartan stations
+list.stn <- fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/AERONET/stage2/spartan/stn_aer.csv")
+```
+
+# List files per directory
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+#Aeronet AOD files
+aer_aod <- list.files(path=aer_aot_dir,full.names = TRUE)
+#Aeronet SDA files
+aer_sda <- list.files(path=aer_sda_dir,full.names = TRUE)
+#Aeronet inversion  files
+aer_inv <- list.files(path=aer_inv_dir,full.names = TRUE)
+
+#EPA daily PM concentrations
+epa_daily <- list.files(path=epa_daily_dir,pattern="*.csv",full.names = TRUE)
+```
+
+# Read spartan PM data
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+l<-list()
+ind=1
+for (I in epa_daily){
+ p <- fread(I)
+ p$Name <- I %>% 
+      strsplit("\\_") %>% 
+      sapply("[", 4) 
+l[[ind]] <- p
+  ind=ind+1
+}
+pm <- rbindlist(l) #11,779
+pm[pm=='NaN'] <- NA
+pm<- pm[!is.na(pm$PM_daily),]#4064 obs; 13 stations
+pm <- pm[,c("Date_YYMMDD","PM_daily","Name")]
+  
+setnames(pm,"Date_YYMMDD","Date")
+pm$Date <- as.Date(pm$Date )
+#Add AERONET station names
+pm<- merge(pm,list.stn[,c("Name","AERONET")],by="Name")
+setnames(pm,'AERONET','Site_Name')
+#write.csv(pm,"C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/spartan.pm.csv")
+
+setDT(pm)
+pm%>%
+  group_by(Site_Name)%>%summarise(N=n(),min=min(Date),max=max(Date))
+
+```
+
+#Read AERONET AOD-spec data
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+
+#AOD
+l<-list()
+for (I in aer_aod){
+  stn.name <- 
+      I %>% 
+      strsplit("\\.") %>% 
+      lapply(rev) %>% 
+      sapply("[", 2) %>% 
+      strsplit("\\d_")%>%
+      lapply(rev) %>% 
+      sapply("[", 1)
+  if (stn.name %in% as.matrix(list.stn[,4])){
+  l[[stn.name]] <- fread(I,skip=6,fill=TRUE)
+  }
+}
+aer.aod <- rbindlist(l,fill=TRUE,idcol=TRUE) #25905*82
+setnames(aer.aod,".id","Site_Name")
+setnames(aer.aod,"Date(dd:mm:yyyy)","Date")
+setnames(aer.aod,"Time(hh:mm:ss)","hour")
+aer.aod$Date <- as.Date(aer.aod$Date,format="%d:%m:%Y" )
+
+#change site names
+
+#remove duplicate columns
+coll <- which(aer.aod[,!duplicated(colnames(aer.aod))])
+aer.aod <- aer.aod[,..coll]
+
+aer.aod%>%
+  group_by(Site_Name)%>%summarise(N=n(),min=min(Date),max=max(Date))
+```
+
+```{r}
+#Extract data only from collocated sites with EPA PM stations
+aer.coll <- merge(aer.aod,pm,by=c("Site_Name","Date")) #2025; 11 stations
+
+#Save files
+#write.csv(aer.aod,paste0(res_dir,"aer.aod.spec.csv"))
+#write.csv(aer.coll,paste0(res_dir,"aer.coll.spec.csv"))
+
+aer.coll%>%
+  group_by(Site_Name)%>%summarise(N=n(),min=min(Date),max=max(Date))
+```
+
+#Read AERONET INV data 
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+l<-list()
+for (I in aer_inv){
+  stn.name <- 
+      I %>% 
+      strsplit("\\_") %>% 
+      lapply(rev) %>% 
+      sapply("[", 1) %>% 
+      strsplit("\\.")%>%
+      lapply(rev) %>% 
+      sapply("[", 2)
+  if (stn.name %in% as.matrix(list.stn[,4])){
+    l[[stn.name]] <- fread(I,skip=6,fill=TRUE)
+  }
+}
+aer.inv<- setDT(rbindlist(l,idcol=TRUE)) #7086x242
+setnames(aer.inv,".id","Site_Name")
+setnames(aer.inv,"Date(dd:mm:yyyy)","Date")
+setnames(aer.inv,"Time(hh:mm:ss)","hour")
+aer.inv$Date <- as.Date(aer.inv$Date, format="%d:%m:%Y")    
+
+aer.inv%>%
+  group_by(Site_Name)%>%summarise(N=n(),min=min(Date),max=max(Date))
+```
+
+```{r}
+#merge data to collocated aeronet AOD dataset
+aot.pm.inv <- merge(aer.coll,aer.inv,by=c("Site_Name","Date"))#650 obs; 5 stations
+
+#Save files
+#write.csv(aer.inv,paste0(aer_aot_dir,"aer.inv.csv"))
+#write.csv(aer.coll.inv,paste0(aer_aot_dir,"aer.inv.coll.csv"))
+#write.csv(aot.pm.inv,paste0(aer_aot_dir,"aot.pm.inv.csv"))
+
+aot.pm.inv%>%
+  group_by(Site_Name)%>%summarise(N=n(),min=min(Date),max=max(Date))
+```
+
+#Read AERONET SDA data
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+#SDA
+l<-list()
+for (I in aer_sda){
+  stn.name <- 
+      I %>% 
+      strsplit("\\.") %>% 
+      lapply(rev) %>% 
+      sapply("[", 2) %>% 
+      strsplit("\\d_")%>%
+      lapply(rev) %>% 
+      sapply("[", 1)  
+  if (stn.name %in% as.matrix(list.stn[,4])){
+  l[[stn.name]] <- fread(I,skip=6,fill=TRUE)
+      }
+}
+aer.sda <- setDT(rbindlist(l,fill=TRUE,idcol=TRUE)) #25575x44
+setnames(aer.sda,".id","Site_Name")
+setnames(aer.sda,"Date_(dd:mm:yyyy)","Date")
+setnames(aer.sda,"Time_(hh:mm:ss)","hour")
+aer.sda$Date <- as.Date(aer.sda$Date, format="%d:%m:%Y")    
+
+aer.sda%>%
+  group_by(Site_Name)%>%summarise(N=n(),min=min(Date),max=max(Date))
+
+```
+
+```{r}
+#merge data to collocated aeronet AOD dataset
+aot.pm.sda <- merge(aot.pm.inv,aer.sda,by=c("Site_Name","Date"))#2018x37
+
+aot.pm.sda%>%
+  group_by(Site_Name)%>%summarise(N=n(),min=min(Date),max=max(Date))
+
+#Save files
+#write.csv(aer.sda,paste0(aer_aot_dir,"aer.sda.csv"))
+#write.csv(aer.coll.sda,paste0(aer_aot_dir,"aer.sda.coll.csv"))
+```
+
+#extract list of variables from 352
+```{r}
+vars.list <- fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv")
+vars.list <- as.list(vars.list)  
+setDT(aot.pm.sda)
+pm<-aot.pm.sda$PM_daily
+wdb.ex <- aot.pm.sda[,which(colnames(aot.pm.sda) %in% vars.list[[1]]),with=FALSE]#650obsX61vars
+wdb.ex[wdb.ex=='N/A']<-NA
+wdb.ex[wdb.ex=='-999']<-NA
+wdb.ex <- cbind(aot.pm.sda[,1:2],wdb.ex)
+wdb.ex <- cbind(wdb.ex,pm)
+
+#exclude vars with less than 90% availability
+wdb.f <- wdb.ex[,(colSums(is.na(wdb.ex)/dim(wdb.ex)[1]))<0.1,with=FALSE] 
+#write.csv(wdb.f,"C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/wdb.spartan.spec.csv")
+#write.csv(names(wdb.f),"C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/wdb.spartan.spec.vars.csv")
+```
+
+#

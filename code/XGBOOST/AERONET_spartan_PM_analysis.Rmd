@@ -1,0 +1,313 @@
+---
+title: "AERONET_PMspartan_Analysis"
+author: "Meytar Sorek-Hamer"
+date: "April 11, 2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Libraries
+```{r}
+library(purrr)
+library(tidyr)
+library(ggplot2)
+library(data.table)
+library(dplyr)
+library(Hmisc)
+library(rlist)
+library(pls)
+```
+## Load the working data base
+```{r}
+wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/wdb.spartan.spec.csv")
+
+vars <- fread(("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv"))
+```
+
+# List Directories
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+#save results
+res_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/spartan"
+
+```
+
+#boxplot rawdata
+```{r}
+require(reshape2)
+wdb.f <- wdb.f[,-c("NO2(Dobson)","Ozone(Dobson)")]
+wdb.melt <- melt(wdb.f[,-1],id.vars = c("Date","Site_Name"))
+# ggplot(data=wdb.melt,aes(x=variable,y=value,fill=variable))+
+#   geom_boxplot()+
+#   facet_wrap(~variable,scale='free')+
+#   theme(legend.position="none",axis.text.y = element_text(size=5),
+#         axis.text.x = element_blank())
+summary(wdb.f$pm)
+hist(wdb.f$pm)
+```
+# PCA calculation
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+#omit na
+#exclude vars with less than 90% availability
+wdb.f <- wdb.f[,(colSums(is.na(wdb.f)/dim(wdb.f)[1]))<0.1,with=FALSE] 
+wdb.na <- na.omit(wdb.f)#216 obs *49 vars
+
+#Run PCA
+aeronet.pca <- prcomp(wdb.na[,-c("V1","Site_Name","Date" ,"pm")],center = TRUE,scale = TRUE)
+summary(aeronet.pca)
+#Each of the PC# explains a percentage of the total variation in the dataset.
+expl.var <- round(aeronet.pca$sdev^2/sum(aeronet.pca$sdev^2)*100)
+print(expl.var)# percent explained variance
+```
+
+#plot pca results
+```{r}
+#library(devtools)
+#install_github("vqv/ggbiplot")
+library(ggbiplot)
+
+#plot PC1-PC2
+# ggbiplot(aeronet.pca,alpha=0.01,varname.size=2.5,choices=(1:2))+
+#   theme_bw()
+# 
+# ggsave(paste0(res_dir,"PC1-2.scatter.png"),width=15,height=7)
+# 
+# #plot2 PC3-PC4
+# ggbiplot(aeronet.pca,alpha=0.01,varname.size=2.5,choices=(3:4))+
+#   theme_bw()
+# 
+# ggsave(paste0(res_dir,"PC3-4.scatter.png"),width=15,height=7)
+
+
+#plot PC values per observation correlation
+#A positive correlation means that as the value of the observation for PCx #increases so does the variable (showing the correlation)
+#A negative correlation means that as the value of the observation for PCx #decreases so does the variable (showing the correlation)
+db <- cbind(wdb.na[,-c("Site_Name","Date" ,"pm")],aeronet.pca$x[,1:5])#PCx loadings
+cor.db <- round(cor(db[,-c(40:44)],db[,40:44]),2)
+cor.db
+#write.csv(cor.db,paste0(res_dir,"pca_1234.cor.csv"))
+
+#plot loading
+#create matrix for plotting
+plot.mat <- melt(aeronet.pca$rotation[,1:4])
+plot.mat <- merge(plot.mat,vars,by="Var1")
+
+ggplot(data=plot.mat,aes(x=Var1,y=value,col=Var2))+
+  geom_point(size=4)+
+  theme_bw()+
+  theme(axis.text.x = element_text(size=rel(1),angle=90.,hjust=1),
+        legend.title = element_blank())
+
+ggsave(paste0(res_dir,"aeronet_spec_loading_spartan.png"),width=15,height=7)
+
+#Add group of vars
+ggplot(data=plot.mat,aes(x=Var1,y=value,shape=Var2,col=as.factor(group)))+
+  geom_point(size=4)+
+  theme_bw()+
+  ylab("Loading")+
+  theme(axis.text.x = element_text(size=rel(1),angle=90.,hjust=1),
+        legend.title = element_blank())
+
+ggsave(paste0(res_dir,"aeronet_spec_loading_bygroup_spartan.png"),width=15,height=7)
+
+```
+
+# PM regression using PC
+```{r}
+require(FactoMineR)
+#training and testing datasets
+train = sample(nrow(wdb.na), 0.8*nrow(wdb.na))
+test = setdiff(seq_len(nrow(wdb.na)), train)
+
+#lm raw data
+Org_Reg=lm(pm~.,data=wdb.na[train,-c(1:2)])
+summary(Org_Reg)
+
+#run CV regression
+pca_model <- PCA(wdb.na[,-c(1:3)])
+
+PCA_data <- as.data.frame(cbind(wdb.na[train,c("pm")],pca_model$ind$coord[train,]))
+
+Step_PCA_Reg =step(lm(pm~.,data = PCA_data)) 
+summary(Step_PCA_Reg)
+
+#performance
+PCA_Estimate=predict(Step_PCA_Reg,type='response',newdata=cbind(wdb.na[test,c("pm")],pca_model$ind$coord[test,]))
+Observed=subset(wdb.na[test,],select="pm")
+format(cor(PCA_Estimate, Observed$pm)^2, digits=4)
+
+#PCR-2
+require(pls)
+pcr_model <- pcr(pm~., data = wdb.na[,-c(1:3)],scale =TRUE, validation = "CV")
+summary(pcr_model)
+
+par(mfrow=c(2,2))
+#predicted vs measured values
+predplot(pcr_model)
+ 
+
+# Plot the RMSEP
+validationplot(pcr_model)
+
+# Plot the R2
+validationplot(pcr_model, val.type = "R2")
+
+#we would like to see is a low cross validation error with a lower number of components than the number of variables in your dataset. If this is not the case or if the smalles cross validation error occurs with a number of components close to the number of variables in the original data, then no dimensionality reduction occurs
+
+
+```
+
+#XGBoost
+```{r}
+library(xgboost)
+library(caret)
+
+#XGBoost
+tune_grid <- expand.grid(nrounds = 100,
+                         max_depth = 5,
+                         eta = 0.05,
+                         gamma = 0.01,
+                         colsample_bytree = 0.75,
+                         min_child_weight = 0,
+                         subsample = 0.5)
+# Run algorithms using 10-fold cross validation
+control <- trainControl(method="cv", number=10,verboseIter=TRUE)
+
+fit.xgb <- train(pm~., data=wdb.na[,-c(1:3)], method = "xgbTree",
+                 trControl=control,
+                 tuneGrid = tune_grid,
+                 tuneLength = 10, importance=TRUE)
+#saveRDS(fit.xgb,paste0(res_dir,"fit.xgb.train.rds"))
+
+#results <- resamples(list(model1,xgb=fit.xgb)
+print(fit.xgb)
+
+#Run xgboost only on AOD
+#wd.aod <- wdb.na[,c(4:10,18)]
+
+# fit.xgb.aod <- train(pm~., data=wd.aod, method = "xgbTree",
+#                  trControl=control,
+#                  tuneGrid = tune_grid,
+#                  tuneLength = 10, importance=TRUE)
+# #saveRDS(fit.xgb.aod,paste0(res_dir,"fit.xgb.aod.train.rds"))
+# 
+# #summarize accuracy of models
+# print(fit.xgb.aod)
+```
+
+##importance of Variables
+#interpretation with SHAP-all vars
+```{r}
+source('~/R/Scripts/functions/shap.R')
+
+#arrange data
+names(wdb.na) <- sub("_","",names(wdb.na))
+names(wdb.na) <- sub("-","",names(wdb.na))
+names(wdb.na) <- sub("[","",names(wdb.na),fixed=TRUE)
+names(wdb.na) <- sub("]","",names(wdb.na))
+data_2 <- wdb.na[,-c(1:3,42)]
+
+data_dmy = dummyVars(" ~ .", data = data_2, fullRank=T)
+data_x = predict(data_dmy, newdata = data_2)
+
+## Create the xgboost model
+model_xgb = xgboost(data = data_x, 
+                   nround = 10, 
+                   #objective="reg:linear",
+                   label= wdb.na$pm)  
+
+## Calculate shap values
+shap_result = shap.score.rank(xgb_model = model_xgb, 
+                              X_train =data_x,
+                              shap_approx = F)
+
+# `shap_approx` comes from `approxcontrib` from xgboost documentation. 
+# Faster but less accurate if true. Read more: help(xgboost)
+
+## Plot var importance based on SHAP
+var_importance(shap_result, top_n=10)
+
+## Prepare data for top N variables
+shap_long <- shap.prep(shap = shap_result,
+                           X_train = data_x , 
+                           top_n = 10)
+
+source('~/R/Scripts/functions/plot.shap.summary.R') #Thanks to Y.LIU (MSSM)
+plot.shap.summary(shap_long)#Plot shap overall metrics
+tiff(paste0(res_dir,"shap1_spartan.tif"), res = 300)
+plot.shap.summary(shap_long)#Plot shap overall metrics
+dev.off()
+
+## SHAP plot per variable 
+tiff(paste0(res_dir,"shap1_spartan_pervar.tif"))
+xgb.plot.shap(data = data_x, # input data
+              model = model_xgb, # xgboost model
+              features = names(shap_result$mean_shap_score[1:10]), # only top 10 var
+              n_col = 3, # layout option
+              plot_loess = T # add red line to plot
+              )
+dev.off()
+
+# Do some classical plots
+#ggplotgui::ggplot_shiny(wdb.na)
+```
+
+#interpretation with SHAP-only AOD
+```{r}
+# #arrange data
+# require(caret)
+# names(wd.aod) <- sub("_","",names(wd.aod))
+# names(wd.aod) <- sub("-","",names(wd.aod))
+# names(wd.aod) <- sub("[","",names(wd.aod),fixed=TRUE)
+# names(wd.aod) <- sub("]","",names(wd.aod))
+# data_2 <- wd.aod[,-c(8)]
+# 
+# data_dmy = dummyVars(" ~ .", data = data_2, fullRank=T)
+# data_x = predict(data_dmy, newdata = data_2)
+# 
+# ## Create the xgboost model
+# model_xgb = xgboost(data = data_x, 
+#                    nround = 10, 
+#                    #objective="reg:linear",
+#                    label= wdb.na$pm)  
+# 
+# ## Calculate shap values
+# shap_result <- shap.score.rank(xgb_model = model_xgb, 
+#                               X_train =data_x,
+#                               shap_approx = F)
+# 
+# # `shap_approx` comes from `approxcontrib` from xgboost documentation. 
+# # Faster but less accurate if true. Read more: help(xgboost)
+# 
+# ## Plot var importance based on SHAP
+# require(dplyr)
+# var_importance(shap_result, top_n=10)
+# 
+# ## Prepare data for top N variables
+# shap_long <- shap.prep(shap = shap_result,
+#                            X_train = data_x , 
+#                            top_n = 7)
+# 
+# source('~/R/Scripts/functions/plot.shap.summary.R') #Thanks to Y.LIU (MSSM)
+# plot.shap.summary(shap_long)#Plot shap overall metrics
+# tiff(paste0(res_dir,"shap2_spartan.tif"), res = 300)
+# plot.shap.summary(shap_long)#Plot shap overall metrics
+# dev.off()
+# 
+# ## SHAP plot per variable 
+# tiff(paste0(res_dir,"shap2_spartan_pervar.tif"))
+# xgb.plot.shap(data = data_x, # input data
+#               model = model_xgb, # xgboost model
+#               features = names(shap_result$mean_shap_score[1:7]), # only top 10 var
+#               n_col = 3, # layout option
+#               plot_loess = T # add red line to plot
+#               )
+# dev.off()
+
+# Do some classical plots
+#ggplotgui::ggplot_shiny(wdb.na)
+```

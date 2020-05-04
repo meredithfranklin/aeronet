@@ -31,11 +31,16 @@ library(leaflet)
 #vars <- fread(("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv"))
 # aeronet inversion with PM2.5 mass
 wdb.f <-fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.pm.data.csv")
+#write.csv(names(wdb.f),"/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.vars2.csv",row.names = F)
 # replace -999 with NA
 wdb.f <- na_if(wdb.f, "-999")
 # aeronet inversion with PM2.5 speciation
 wdb.s <-fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.spec.data.csv")
 wdb.s <- na_if(wdb.s, "-999")
+
+# variables for inv xgboost
+vars <- fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.vars2.csv")
+
 ```
 
 # Map
@@ -48,14 +53,14 @@ spec.pal = colorNumeric(c('darkblue','dodgerblue','purple','purple'),
 
   leaflet() %>% 
   addProviderTiles('Stamen.TonerLite') %>% 
-   addCircles(data=wdb.s, lat=~`Latitude(Degrees)_mean`,lng=~`Longitude(Degrees)_mean`,
-              label=~Site_Name,color=~spec.pal(N), opacity=1, fillOpacity=1, radius=75000) %>%
+   #addCircles(data=wdb.s, lat=~`Latitude(Degrees)_mean`,lng=~`Longitude(Degrees)_mean`,
+    #          label=~Site_Name,color=~spec.pal(N), opacity=1, fillOpacity=1, radius=75000) %>%
     addCircles(data=wdb.f, lat=~`Latitude(Degrees)`,lng=~`Longitude(Degrees)`, label=~Site_Name,color=~pm.pal(N),
-             opacity=1, fillOpacity=1, radius=50000) %>%
+            opacity=1, fillOpacity=1, radius=50000) %>%
   addLegend('bottomleft', pal=pm.pal, values=wdb.f$N,
-            title='N mass', opacity=1) %>%
-  addLegend('bottomleft', pal=spec.pal, values=wdb.s$N,
-            title='N spec', opacity=1)
+            title='N mass', opacity=1) 
+  #addLegend('bottomleft', pal=spec.pal, values=wdb.s$N,
+   #         title='N spec', opacity=1)
 ```
 
 # List Directories
@@ -160,22 +165,28 @@ dev.off()
 
 ## Load the working data base
 ```{r}
-wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AOD.pm.inv_CA.csv")#739 obs
-
+#wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AOD.pm.inv_CA.csv")#739 obs
+# regional subsets
+wdb.f.w <-wdb.f[wdb.f$Site_Name %in% c("Fresno_2", "DRAGON_Madera_city", "DRAGON_Tranquility","DRAGON_Bakersfield"),]
+sd(wdb.f.w$PM25)
+wdb.f.c <-wdb.f[wdb.f$Site_Name %in% c("Denver_LaCasa", "DRAGON_Chatfield_Pk"),]
+sd(wdb.f.c$PM25)
+wdb.f.e <-wdb.f[wdb.f$Site_Name %in% c("CCNY","USDA_Howard","DRAGON_PATUX","NASA_LaRC", "EPA-Res_Triangle_Pk", "Georgia_Tech"),]
+sd(wdb.f.e$PM25)
 ```
 
 #XGBoost
 ```{r,echo=T,results='hide'}
 #clean working database to complete cases
-setDF(wdb.f)
-dataset <- wdb.f[,  names(wdb.f)%in%vars$Var1]
-dataset[dataset=='-999']<-NA
-dataset <-Filter(function(x)!all(is.na(x)), dataset )
-dataset<-dataset[which(!is.na(dataset$PM25)),]
+setDF(wdb.f.w)
+dataset <- wdb.f.w[,  names(wdb.f.w)%in%vars$Var1]
+#dataset[dataset=='-999']<-NA
+#dataset <-Filter(function(x)!all(is.na(x)), dataset )
+#dataset<-dataset[which(!is.na(dataset$PM25)),]
 #exclude vars with less than 90% availability
-setDT(dataset)
-dataset <- dataset[,(colSums(is.na(dataset)/dim(dataset)[1]))<0.1,with=FALSE]#423*59 vars
-dataset<-dataset[complete.cases(dataset),]#653
+#setDT(dataset)
+#dataset <- dataset[,(colSums(is.na(dataset)/dim(dataset)[1]))<0.1,with=FALSE]#423*59 vars
+#dataset<-dataset[complete.cases(dataset),]#653
 
 #XGBoost
 tune_grid <- expand.grid(nrounds = 100,
@@ -202,8 +213,9 @@ print(fit.xgb)
 ##importance of Variables
 #interpretation with SHAP-all vars
 ```{r}
+library(SHAPforxgboost)
 
-source('~/R/Scripts/functions/shap.R')
+#source('~/R/Scripts/functions/shap.R')
 wdb.na <- setDT(dataset)
 #arrange data
 names(wdb.na) <- sub("_","",names(wdb.na))
@@ -222,18 +234,27 @@ model_xgb = xgboost(data = data_x,
                    label= wdb.na$PM25)  
 
 ## Calculate shap values
-shap_result = shap.score.rank(xgb_model = model_xgb, 
-                              X_train =data_x,
-                              shap_approx = F)
+#shap_result = shap.score.rank(xgb_model = model_xgb, 
+#                             X_train =data_x,
+#                              shap_approx = F)
+
+shap_result <- shap.values(xgb_model = model_xgb, X_train = data_x)
+shap_long <- shap.prep(xgb_model = model_xgb, X_train = data_x)
+# is the same as: using given shap_contrib
+shap_long <- shap.prep(shap_contrib = shap_result$shap_score, X_train = data_x)
+
+# **SHAP summary plot**
+shap.plot.summary(shap_long, dilute=10)
+
 
 # `shap_approx` comes from `approxcontrib` from xgboost documentation. 
 # Faster but less accurate if true. Read more: help(xgboost)
 
 ## Plot var importance based on SHAP
-var_importance(shap_result, top_n=10)
+var_importance(shap_result$mean_shap_score, top_n=10)
 
 ## Prepare data for top N variables
-shap_long <- shap.prep(shap = shap_result,
+shap_long <- shap.prep(shap = shap_result$mean_shap_score,
                            X_train = data_x , 
                            top_n = 10)
 

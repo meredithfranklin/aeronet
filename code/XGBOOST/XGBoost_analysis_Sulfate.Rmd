@@ -27,8 +27,17 @@ library(caret)
 #AERONET AOD + EPA CSN sulfate
 ```{r}
 
-wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AODonly.pm.spec.csv")
-vars <- fread(("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv"))
+#wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AODonly.pm.spec.csv")
+#vars <- fread(("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv"))
+wdb.s <-fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.spec.data.csv")
+#write.csv(names(wdb.s),"/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.vars.spec.csv",row.names = F)
+
+wdb.s <- na_if(wdb.s, "-999")
+wdb.s <- wdb.s[wdb.s$`Parameter Name` == "Sulfate PM2.5 LC",]
+mean(wdb.s$value)
+# variables for inv xgboost
+vars <- fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.vars.spec.csv")
+
 ```
 
 # List Directories
@@ -133,24 +142,33 @@ dev.off()
 
 ## Load the working data base
 ```{r}
-wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AOD.pm.inv_CA.csv")#739 obs
-
+#wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AOD.pm.inv_CA.csv")
+# regional subsets
+wdb.s.w <-wdb.s[wdb.s$Site_Name %in% c("Fresno_2", "DRAGON_Madera_city", "DRAGON_Tranquility","DRAGON_Bakersfield"),]
+mean(wdb.s.w$value)
+sd(wdb.s.w$value)
+wdb.s.c <-wdb.s[wdb.s$Site_Name %in% c("Denver_LaCasa", "DRAGON_Chatfield_Pk"),]
+mean(wdb.s.c$value)
+sd(wdb.s.c$value)
+wdb.s.e <-wdb.s[wdb.s$Site_Name %in% c("CCNY","USDA_Howard","DRAGON_PATUX","NASA_LaRC", "EPA-Res_Triangle_Pk", "Georgia_Tech"),]
+mean(wdb.s.e$value)
+sd(wdb.s.e$value)
 ```
 
 #XGBoost
 ```{r,echo=T,results='hide'}
 #clean working database to complete cases
-setDF(wdb.f)
-dataset <- wdb.f[,  names(wdb.f)%in%vars$Var1]
-dataset <- cbind(dataset,sulfate=wdb.f$sulfate)
-dataset$PM25<-NULL
-dataset[dataset=='-999']<-NA
-dataset <-Filter(function(x)!all(is.na(x)), dataset )
-dataset<-dataset[which(!is.na(dataset$sulfate)),]
+setDF(wdb.s)
+dataset <- wdb.s[,  names(wdb.s)%in%vars$Var1]
+#dataset <- cbind(dataset,sulfate=wdb.f$sulfate)
+#dataset$PM25<-NULL
+#dataset[dataset=='-999']<-NA
+#dataset <-Filter(function(x)!all(is.na(x)), dataset )
+#dataset<-dataset[which(!is.na(dataset$sulfate)),]
 #exclude vars with less than 90% availability
-setDT(dataset)
-dataset <- dataset[,(colSums(is.na(dataset)/dim(dataset)[1]))<0.1,with=FALSE]#423*59 vars
-dataset<-dataset[complete.cases(dataset),]#653
+#setDT(dataset)
+#dataset <- dataset[,(colSums(is.na(dataset)/dim(dataset)[1]))<0.1,with=FALSE]#423*59 vars
+#dataset<-dataset[complete.cases(dataset),]#653
 
 #XGBoost
 tune_grid <- expand.grid(nrounds = 100,
@@ -163,7 +181,7 @@ tune_grid <- expand.grid(nrounds = 100,
 # Run algorithms using 10-fold cross validation
 control <- trainControl(method="cv", number=10,verboseIter=TRUE)
 
-fit.xgb <- train(sulfate~., data=dataset, method = "xgbTree",
+fit.xgb <- train(value~., data=dataset, method = "xgbTree",
                  trControl=control,
                  tuneGrid = tune_grid,
                  tuneLength = 10, importance=TRUE)

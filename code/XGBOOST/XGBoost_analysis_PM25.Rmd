@@ -23,6 +23,7 @@ library(rlist)
 library(xgboost)
 library(caret)
 library(leaflet)
+library(SHAPforxgboost)
 ```
 ## Load the working data base
 ```{r}
@@ -178,8 +179,8 @@ sd(wdb.f.e$PM25)
 #XGBoost
 ```{r,echo=T,results='hide'}
 #clean working database to complete cases
-setDF(wdb.f.w)
-dataset <- wdb.f.w[,  names(wdb.f.w)%in%vars$Var1]
+setDF(wdb.f)
+dataset <- wdb.f[,  names(wdb.f)%in%vars$Var1]
 #dataset[dataset=='-999']<-NA
 #dataset <-Filter(function(x)!all(is.na(x)), dataset )
 #dataset<-dataset[which(!is.na(dataset$PM25)),]
@@ -213,7 +214,7 @@ print(fit.xgb)
 ##importance of Variables
 #interpretation with SHAP-all vars
 ```{r}
-library(SHAPforxgboost)
+
 
 #source('~/R/Scripts/functions/shap.R')
 wdb.na <- setDT(dataset)

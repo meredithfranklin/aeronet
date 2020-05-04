@@ -33,8 +33,8 @@ wdb.s <-fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/a
 #write.csv(names(wdb.s),"/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.vars.spec.csv",row.names = F)
 table(wdb.s$`Parameter Name`)
 wdb.s <- na_if(wdb.s, "-999")
-wdb.s <- wdb.s[wdb.s$`Parameter Name` == "OC PM2.5 LC TOR",]
-
+wdb.s <- wdb.s[wdb.s$`Parameter Name` == "Sulfate PM2.5 LC",]
+dim(wdb.s)
 mean(wdb.s$value)
 sd(wdb.s$value)
 
@@ -148,12 +148,15 @@ dev.off()
 #wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AOD.pm.inv_CA.csv")
 # regional subsets
 wdb.s.w <-wdb.s[wdb.s$Site_Name %in% c("Fresno_2", "DRAGON_Madera_city", "DRAGON_Tranquility","DRAGON_Bakersfield"),]
+dim(wdb.s.w)
 mean(wdb.s.w$value)
 sd(wdb.s.w$value)
 wdb.s.c <-wdb.s[wdb.s$Site_Name %in% c("Denver_LaCasa", "DRAGON_Chatfield_Pk"),]
+dim(wdb.s.c)
 mean(wdb.s.c$value)
 sd(wdb.s.c$value)
 wdb.s.e <-wdb.s[wdb.s$Site_Name %in% c("CCNY","USDA_Howard","DRAGON_PATUX","NASA_LaRC", "EPA-Res_Triangle_Pk", "Georgia_Tech"),]
+dim(wdb.s.e)
 mean(wdb.s.e$value)
 sd(wdb.s.e$value)
 ```
@@ -161,8 +164,8 @@ sd(wdb.s.e$value)
 #XGBoost
 ```{r,echo=T,results='hide'}
 #clean working database to complete cases
-setDF(wdb.s.w)
-dataset <- wdb.s.w[,  names(wdb.s.w)%in%vars$Var1]
+setDF(wdb.s)
+dataset <- wdb.s[,  names(wdb.s)%in%vars$Var1]
 #dataset <- cbind(dataset,sulfate=wdb.f$sulfate)
 #dataset$PM25<-NULL
 #dataset[dataset=='-999']<-NA

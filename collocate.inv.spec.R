@@ -51,7 +51,7 @@ for(I in epa_spec){
   parameter.list <- c("88321","88380","88320","88403","88306","88104","88165","88111","88161","88126")
   file.spec.clean <-file.spec %>% filter(`Parameter Code`%in% parameter.list)
   file.spec.clean <- file.spec.clean[,c("Latitude","Longitude","Date" ,"Parameter Name",
-                                        "Arithmetic Mean","spec_Site_Name")]
+                                        "Arithmetic Mean","spec_Site_Name","State Name")]
   file.spec.loc <- unique(file.spec.clean[,c("Latitude","Longitude","spec_Site_Name")])          
  
     #calculate distance between EPA spec and aeronet sites

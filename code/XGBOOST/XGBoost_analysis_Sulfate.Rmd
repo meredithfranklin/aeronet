@@ -31,10 +31,13 @@ library(caret)
 #vars <- fread(("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv"))
 wdb.s <-fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.spec.data.csv")
 #write.csv(names(wdb.s),"/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.vars.spec.csv",row.names = F)
-
+table(wdb.s$`Parameter Name`)
 wdb.s <- na_if(wdb.s, "-999")
-wdb.s <- wdb.s[wdb.s$`Parameter Name` == "Sulfate PM2.5 LC",]
+wdb.s <- wdb.s[wdb.s$`Parameter Name` == "OC PM2.5 LC TOR",]
+
 mean(wdb.s$value)
+sd(wdb.s$value)
+
 # variables for inv xgboost
 vars <- fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.vars.spec.csv")
 
@@ -158,8 +161,8 @@ sd(wdb.s.e$value)
 #XGBoost
 ```{r,echo=T,results='hide'}
 #clean working database to complete cases
-setDF(wdb.s)
-dataset <- wdb.s[,  names(wdb.s)%in%vars$Var1]
+setDF(wdb.s.w)
+dataset <- wdb.s.w[,  names(wdb.s.w)%in%vars$Var1]
 #dataset <- cbind(dataset,sulfate=wdb.f$sulfate)
 #dataset$PM25<-NULL
 #dataset[dataset=='-999']<-NA
@@ -196,14 +199,14 @@ print(fit.xgb)
 #interpretation with SHAP-all vars
 ```{r}
 
-source('~/R/Scripts/functions/shap.R')
+#source('~/R/Scripts/functions/shap.R')
 wdb.na <- setDT(dataset)
 #arrange data
 names(wdb.na) <- sub("_","",names(wdb.na))
 names(wdb.na) <- sub("-","",names(wdb.na))
 names(wdb.na) <- sub("[","",names(wdb.na),fixed=TRUE)
 names(wdb.na) <- sub("]","",names(wdb.na))
-data_2 <- wdb.na[,-c("sulfate")]
+data_2 <- wdb.na[,-c("value")]
 
 data_dmy = dummyVars(" ~ .", data = data_2, fullRank=T)
 data_x = predict(data_dmy, newdata = data_2)
@@ -212,12 +215,19 @@ data_x = predict(data_dmy, newdata = data_2)
 model_xgb = xgboost(data = data_x, 
                    nround = 10, 
                    objective="reg:linear",
-                   label= wdb.na$sulfate)  
+                   label= wdb.na$value)  
 
 ## Calculate shap values
-shap_result = shap.score.rank(xgb_model = model_xgb, 
-                              X_train =data_x,
-                              shap_approx = F)
+#shap_result = shap.score.rank(xgb_model = model_xgb, 
+#                              X_train =data_x,
+#                              shap_approx = F)
+shap_result <- shap.values(xgb_model = model_xgb, X_train = data_x)
+shap_long <- shap.prep(xgb_model = model_xgb, X_train = data_x)
+# is the same as: using given shap_contrib
+shap_long <- shap.prep(shap_contrib = shap_result$shap_score, X_train = data_x)
+
+# **SHAP summary plot**
+shap.plot.summary(shap_long, dilute=10)
 
 # `shap_approx` comes from `approxcontrib` from xgboost documentation. 
 # Faster but less accurate if true. Read more: help(xgboost)

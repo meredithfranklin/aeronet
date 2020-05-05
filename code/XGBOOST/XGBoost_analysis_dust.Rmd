@@ -60,7 +60,7 @@ vars <- fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/a
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 #save results
 #res_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/"
-
+res_dir <- "/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/results"
 ```
 #XGBoost
 ```{r,echo=T,results='hide'}
@@ -177,8 +177,8 @@ sd(wdb.s.e$dust)
 #XGBoost
 ```{r,echo=T,results='hide'}
 #clean working database to complete cases
-setDF(wdb.s)
-dataset <- wdb.s[,  names(wdb.s)%in%vars$Var1]
+setDF(wdb.s.e)
+dataset <- wdb.s.e[,  names(wdb.s.e)%in%vars$Var1]
 #dataset <- cbind(dataset,sulfate=wdb.f$sulfate)
 #dataset$PM25<-NULL
 #dataset[dataset=='-999']<-NA
@@ -222,7 +222,7 @@ names(wdb.na) <- sub("_","",names(wdb.na))
 names(wdb.na) <- sub("-","",names(wdb.na))
 names(wdb.na) <- sub("[","",names(wdb.na),fixed=TRUE)
 names(wdb.na) <- sub("]","",names(wdb.na))
-data_2 <- wdb.na[,-c("value")]
+data_2 <- wdb.na[,-c("dust")]
 
 data_dmy = dummyVars(" ~ .", data = data_2, fullRank=T)
 data_x = predict(data_dmy, newdata = data_2)
@@ -231,7 +231,7 @@ data_x = predict(data_dmy, newdata = data_2)
 model_xgb = xgboost(data = data_x, 
                    nround = 10, 
                    objective="reg:linear",
-                   label= wdb.na$value)  
+                   label= wdb.na$dust)  
 
 ## Calculate shap values
 #shap_result = shap.score.rank(xgb_model = model_xgb, 

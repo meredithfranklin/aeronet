@@ -46,8 +46,8 @@ vars <- fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/a
 # List Directories
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 #save results
-res_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/"
-
+#res_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/"
+res_dir <- "/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/results"
 ```
 #XGBoost
 ```{r,echo=T,results='hide'}
@@ -203,6 +203,7 @@ print(fit.xgb)
 ```{r}
 
 #source('~/R/Scripts/functions/shap.R')
+source("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/code/XGBOOST/shap.R")
 wdb.na <- setDT(dataset)
 #arrange data
 names(wdb.na) <- sub("_","",names(wdb.na))

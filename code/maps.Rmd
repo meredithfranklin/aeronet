@@ -21,44 +21,33 @@ library(dplyr)
 library(leaflet)
 
 ```
-## Load the working data base
+## Load the working data bases
 ```{r}
-#AERONET AOD + EPA CSN PM
-#wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AODonly.pm.spec.csv")
-#vars <- fread(("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv"))
-# aeronet inversion with PM2.5 mass
-wdb.f <-fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.pm.data.csv")
-#write.csv(names(wdb.f),"/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.vars2.csv",row.names = F)
-# replace -999 with NA
-wdb.f <- na_if(wdb.f, "-999")
-dim(wdb.f)
-mean(wdb.f$PM25)
-sd(wdb.f$PM25)
+wdb.f <-read.csv("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.pm.data.csv")
+pm.locs<-wdb.f[!duplicated(c(wdb.f$Longitude.Degrees.,wdb.f$Latitude.Degrees.)),]
+dim(pm.locs)
+
 # aeronet inversion with PM2.5 speciation
-wdb.s <-fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.spec.data.csv")
-wdb.s <- na_if(wdb.s, "-999")
-
-# variables for inv xgboost
-vars <- fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.vars.pm.csv")
-
+wdb.s <-read.csv("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.spec.data.csv")
+spec.locs<-wdb.s[!duplicated(c(wdb.s$Longitude.Degrees._mean,wdb.s$Latitude.Degrees._mean)),]
+dim(spec.locs)
 ```
 
 # Map
 ```{r}
 pm.pal = colorNumeric(c('yellow','orange','chocolate2','chocolate3'),
-                        domain=wdb.f$N)
+                        domain=pm.locs$N)
 
 spec.pal = colorNumeric(c('darkblue','dodgerblue','purple','purple'),
-                        domain=wdb.s$N)
+                        domain=spec.locs$N)
 
   leaflet() %>% 
   addProviderTiles('Stamen.TonerLite') %>% 
-   #addCircles(data=wdb.s, lat=~`Latitude(Degrees)_mean`,lng=~`Longitude(Degrees)_mean`,
-    #          label=~Site_Name,color=~spec.pal(N), opacity=1, fillOpacity=1, radius=75000) %>%
-    addCircles(data=wdb.f, lat=~`Latitude(Degrees)`,lng=~`Longitude(Degrees)`, label=~Site_Name,color=~pm.pal(N),
+   addCircles(data=spec.locs, lat=~Latitude.Degrees._mean,lng=~Longitude.Degrees._mean,
+              label=~Site_Name,color="red", opacity=1, fillOpacity=1, radius=75000) %>%
+    addCircles(data=pm.locs, lat=~Latitude.Degrees., lng=~Longitude.Degrees., label=~Site_Name,color="blue",
             opacity=1, fillOpacity=1, radius=50000) %>%
-  addLegend('bottomleft', pal=pm.pal, values=wdb.f$N,
-            title='N mass', opacity=1) 
+    addLegend("bottomright", colors =c("red",  "blue"), labels= c("PM2.5","PM2.5 speciation"),  opacity = 1)
   #addLegend('bottomleft', pal=spec.pal, values=wdb.s$N,
    #         title='N spec', opacity=1)
 ```

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  6 MAY 2020 22:10
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019) (preloaded format=pdflatex 2019.5.8)  7 MAY 2020 12:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -707,87 +707,97 @@ LaTeX Font Info:    Try loading font information for T1+pcr on input line 167.
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
 ) [1
 
-{/usr/local/texlive/2019/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] [3]
-LaTeX Font Info:    Try loading font information for TS1+pcr on input line 334.
+{/usr/local/texlive/2019/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+<site_map.png, id=40, 1687.80562pt x 834.11626pt>
+File: site_map.png Graphic file (type png)
+<use site_map.png>
+Package pdftex.def Info: site_map.png  used on input line 203.
+(pdftex.def)             Requested size: 236.15796pt x 116.69911pt.
+LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <9> not available
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 203.
+[2 <./site_map.png>] [3]
+LaTeX Font Info:    Try loading font information for TS1+pcr on input line 283.
 
 (/usr/local/texlive/2019/texmf-dist/tex/latex/psnfss/ts1pcr.fd
 File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
-) [4] [5]
-<Nikolaus_Kopernikus.jpg, id=73, 206.7725pt x 240.9pt>
+) [4]
+<Nikolaus_Kopernikus.jpg, id=74, 206.7725pt x 240.9pt>
 File: Nikolaus_Kopernikus.jpg Graphic file (type jpg)
 <use Nikolaus_Kopernikus.jpg>
-Package pdftex.def Info: Nikolaus_Kopernikus.jpg  used on input line 380.
+Package pdftex.def Info: Nikolaus_Kopernikus.jpg  used on input line 329.
 (pdftex.def)             Requested size: 236.15796pt x 275.14345pt.
-LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <9> not available
-(Font)              Font shape `T1/ptm/b/n' tried instead on input line 380.
 File: Nikolaus_Kopernikus.jpg Graphic file (type jpg)
 <use Nikolaus_Kopernikus.jpg>
-Package pdftex.def Info: Nikolaus_Kopernikus.jpg  used on input line 388.
+Package pdftex.def Info: Nikolaus_Kopernikus.jpg  used on input line 337.
 (pdftex.def)             Requested size: 341.43306pt x 397.82806pt.
 
-Overfull \hbox (170.03976pt too wide) in paragraph at lines 430--436
+Overfull \hbox (170.03976pt too wide) in paragraph at lines 379--385
 \T1/ptm/m/n/10 PAC: Quan-ti-ties, Units and Sym-bols in Phys-i-cal Chem-istry, 
 2nd Edn., Black-well Sci-ence, avail-able at: http://old.iupac.org/publications
 /books/gbook/green_book_2ed.pdf,
  []
 
-[6
+[5
 
- <./Nikolaus_Kopernikus.jpg>] [7] [8]
-Overfull \hbox (14.92061pt too wide) in paragraph at lines 499--507
+ <./Nikolaus_Kopernikus.jpg>] [6] [7]
+Overfull \hbox (14.92061pt too wide) in paragraph at lines 448--456
 \T1/pcr/m/n/10 true\T1/ptm/m/n/10 ), or make sure your-self that the L[]T[]Xpac
 kages \T1/pcr/m/n/10 algorithms \T1/ptm/m/n/10 and \T1/pcr/m/n/10 algorithmicx 
 \T1/ptm/m/n/10 are in-stalled so that \T1/pcr/m/n/10 algorithm.sty
  []
 
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 509.
-[9]pdfTeX warning (ext4): destination with the same identifier (name{equation.7
+put line 458.
+[8]pdfTeX warning (ext4): destination with the same identifier (name{equation.7
 .1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.543 \begin{reaction}
+l.492 \begin{reaction}
                       pdfTeX warning (ext4): destination with the same identifi
 er (name{equation.7.2}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.546 \begin{reaction}
+l.495 \begin{reaction}
                       pdfTeX warning (ext4): destination with the same identifi
 er (name{equation.7.3}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.549 \begin{reaction}
+l.498 \begin{reaction}
                       
-Overfull \hbox (13.58418pt too wide) in paragraph at lines 564--566
+Overfull \hbox (13.58418pt too wide) in paragraph at lines 513--515
 \T1/ptm/m/n/10 The con-clu-sion goes here. You can mod-ify the sec-tion name wi
 th \T1/pcr/m/n/10 \conclusions[modified heading if necessary]\T1/ptm/m/n/10 . 
  []
 
-[10] (./aeronet-inv.bbl [11]
-Underfull \hbox (badness 1577) in paragraph at lines 31--35
+[9] (./aeronet-inv.bbl [10]
+Underfull \hbox (badness 1577) in paragraph at lines 35--39
 []\T1/ptm/m/n/9 Meng, X., Garay, M. J., Diner, D. J., Kalash-nikova, O. V., Xu,
  J., and Liu, Y.: Es-ti-mat-ing PM2.5 spe-ci-a-tion con-cen-tra-tions
  []
 
 
-Underfull \hbox (badness 1348) in paragraph at lines 31--35
+Underfull \hbox (badness 1348) in paragraph at lines 35--39
 \T1/ptm/m/n/9 us-ing pro-to-type 4.4 km-resolution MISR aerosol prop-er-ties ov
 er South-ern Cal-i-for-nia, At-mo-spheric En-vi-ron-ment, 181, 70--81,
  []
 
-) [12]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 664.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 664.
+
+Package lineno Warning: Linenumber reference failed, 
+(lineno)                rerun to get it right.
+
+) [11]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 613.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 613.
 (./aeronet-inv.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 664.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 664.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 664.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 613.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 613.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 613.
  ) 
 Here is how much of TeX's memory you used:
- 10526 strings out of 492616
- 150356 string characters out of 6129482
- 283700 words of memory out of 5000000
- 14151 multiletter control sequences out of 15000+600000
+ 10531 strings out of 492616
+ 150474 string characters out of 6129482
+ 283830 words of memory out of 5000000
+ 14154 multiletter control sequences out of 15000+600000
  49008 words of font info for 85 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  43i,8n,40p,326b,719s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -808,10 +818,10 @@ xmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2019/texmf-dist
 type1/urw/times/utmb8a.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/urw/
 times/utmr8a.pfb></usr/local/texlive/2019/texmf-dist/fonts/type1/urw/times/utmr
 i8a.pfb>
-Output written on aeronet-inv.pdf (12 pages, 193613 bytes).
+Output written on aeronet-inv.pdf (11 pages, 994135 bytes).
 PDF statistics:
- 232 PDF objects out of 1000 (max. 8388607)
- 199 compressed objects within 2 object streams
- 78 named destinations out of 1000 (max. 500000)
- 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 234 PDF objects out of 1000 (max. 8388607)
+ 200 compressed objects within 2 object streams
+ 79 named destinations out of 1000 (max. 500000)
+ 11 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -1,0 +1,64 @@
+---
+title: "AERONET_PMspec_Maps"
+author: "Meredith Franklin"
+date: "May 7, 2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Libraries
+```{r,echo=FALSE,include=FALSE}
+library(purrr)
+library(tidyr)
+library(ggplot2)
+library(data.table)
+library(dplyr)
+library(leaflet)
+
+```
+## Load the working data base
+```{r}
+#AERONET AOD + EPA CSN PM
+#wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AODonly.pm.spec.csv")
+#vars <- fread(("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/vars.type.spec.csv"))
+# aeronet inversion with PM2.5 mass
+wdb.f <-fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.pm.data.csv")
+#write.csv(names(wdb.f),"/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.vars2.csv",row.names = F)
+# replace -999 with NA
+wdb.f <- na_if(wdb.f, "-999")
+dim(wdb.f)
+mean(wdb.f$PM25)
+sd(wdb.f$PM25)
+# aeronet inversion with PM2.5 speciation
+wdb.s <-fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.spec.data.csv")
+wdb.s <- na_if(wdb.s, "-999")
+
+# variables for inv xgboost
+vars <- fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.vars.pm.csv")
+
+```
+
+# Map
+```{r}
+pm.pal = colorNumeric(c('yellow','orange','chocolate2','chocolate3'),
+                        domain=wdb.f$N)
+
+spec.pal = colorNumeric(c('darkblue','dodgerblue','purple','purple'),
+                        domain=wdb.s$N)
+
+  leaflet() %>% 
+  addProviderTiles('Stamen.TonerLite') %>% 
+   #addCircles(data=wdb.s, lat=~`Latitude(Degrees)_mean`,lng=~`Longitude(Degrees)_mean`,
+    #          label=~Site_Name,color=~spec.pal(N), opacity=1, fillOpacity=1, radius=75000) %>%
+    addCircles(data=wdb.f, lat=~`Latitude(Degrees)`,lng=~`Longitude(Degrees)`, label=~Site_Name,color=~pm.pal(N),
+            opacity=1, fillOpacity=1, radius=50000) %>%
+  addLegend('bottomleft', pal=pm.pal, values=wdb.f$N,
+            title='N mass', opacity=1) 
+  #addLegend('bottomleft', pal=spec.pal, values=wdb.s$N,
+   #         title='N spec', opacity=1)
+```

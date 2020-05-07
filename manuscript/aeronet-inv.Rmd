@@ -120,26 +120,21 @@ Please contact Daniel Nüst, `daniel.nuest@uni-muenster.de`, with any problems.
 # Methods
 
 The study encompasses the San Joaquin Valley region of central California (Figure 1). We leverage datasets available at four sites - Bakersfield, Fresno, Modesto, and Visalia. At these sites there are co-located instruments from EPA’s chemical speciation network (CSN), EPA’s air quality system (AQS) and NASA’s AERONET network. 
+```{r, out.width = "8.3cm", echo = FALSE, fig.cap = "Map of Study Area"}
+knitr::include_graphics("site_map.png")
+```
 
 ## Data
-
-The CSN monitors are on a 1-in-3 or 1-in-6 day sampling schedule, providing PM$_{2.5}$mass and component PM$_{2.5}$ concentrations of metals (e.g. Aluminium Al, Silicon Si, Calcium Ca, Titanium Ti, Iron Fe) obtained from X-ray fluorescence (XRF), ions (nitrate NO$_{3}^-$ and sulfate SO$_4^{2-}$) from ion chromatography, and carbons (organic OC and elemental EC) from thermal/optical analysis. To quantify dust we use the following equation @Chow2015: 
-dust  =  2.2Al +  2.49Si +  1.63Ca +  1.94Ti +  2.42Fe
-
-The AQS monitors provide daily concentrations of PM$_{2.5}$ mass by the EPA’s Federal Reference Method, which is the highest quality gravimetric measurement method used for regulatory purposes.
-
+### Aerosol Optical Properties
 AERONET sites are sunphotometers providing a “ground-up” measurement of aerosol optical properties at multiple wavelengths and have been used extensively to validate “top-down” satellite observations of related properties. Wavelength-specific AOD and angstrom exponents are the primary sunphotometer variables. Using quadratic log-log interpolation we calculated AOD 550 nm from AOD 440, 500, 675, 870 nm in log-log space. AOD at 550 nm is the most common wavelength retrieved from satellite instruments. 
 A retrieval-based AERONET product, called the inversion product, provides an additional suite of aerosol properties that help distinguish size (fine, coarse effective radius), shape (asymmetry), and absorption. We excluded sunphotometer and inversion variables that had a significant proportion of missing data (~90% missing). A list of the variables included in the analysis are shown in the Appendix.
 In a separate test we examine data from the SPARTAN site in Rehovot, Israel. The SPARTAN network provides data for PM$_{2.5}$ mass and speciation concentrations on an integrated 1 in 9 day sampling schedule, and is colocated with an AERONET site (We don’t have the speciation data for this site so we could only look at PM$_{2.5}$ for now).
 
-The CSN monitors are on a 1 in 3 or 1 in 6 day sampling schedule, providing PM2.5 mass and component PM2.5 concentrations of metals (e.g. Aluminium Al, Silicon Si, Calcium Ca, Titanium Ti, Iron Fe) obtained from X-ray fluorescence (XRF), ions (nitrate NO$_{3}^-$ and sulfate SO$_4^{2-}$) from ion chromatography, and carbons (organic OC and elemental EC) from thermal/optical analysis. To quantify dust we use the following equation: 
+### Particulate Matter
+The AQS monitors provide daily concentrations of PM$_{2.5}$ mass by the EPA’s Federal Reference Method, which is the highest quality gravimetric measurement method used for regulatory purposes.
+
+The CSN monitors are on a 1-in-3 or 1-in-6 day sampling schedule, providing PM$_{2.5}$mass and component PM$_{2.5}$ concentrations of metals (e.g. Aluminium Al, Silicon Si, Calcium Ca, Titanium Ti, Iron Fe) obtained from X-ray fluorescence (XRF), ions (nitrate NO$_{3}^-$ and sulfate SO$_4^{2-}$) from ion chromatography, and carbons (organic OC and elemental EC) from thermal/optical analysis. To quantify dust we use the following equation \cite{Chow2015}: 
 dust  =  2.2Al +  2.49Si +  1.63Ca +  1.94Ti +  2.42Fe
-
-The AQS monitors provide daily concentrations of PM2.5 mass by the EPA’s Federal Reference Method, which is the highest quality gravimetric measurement method used for regulatory purposes.
-
-AERONET sites are sunphotometers providing a “ground-up” measurement of aerosol optical properties at multiple wavelengths and have been used extensively to validate “top-down” satellite observations of related properties. Wavelength-specific AOD and angstrom exponents are the primary sunphotometer variables. Using quadratic log-log interpolation we calculated AOD 550 nm from AOD 440, 500, 675, 870 nm in log-log space. AOD at 550 nm is the most common wavelength retrieved from satellite instruments. 
-A retrieval-based AERONET product, called the inversion product, provides an additional suite of aerosol properties that help distinguish size (fine, coarse effective radius), shape (asymmetry), and absorption. We excluded sunphotometer and inversion variables that had a significant proportion of missing data (~90% missing). A list of the variables included in the analysis are shown in the Appendix.
-In a separate test we examine data from the SPARTAN site in Rehovot, Israel. The SPARTAN network provides data for PM2.5 mass and speciation concentrations on an integrated 1 in 9 day sampling schedule, and is colocated with an AERONET site (We don’t have the speciation data for this site so we could only look at PM2.5 for now).
 
 
 
@@ -156,13 +151,6 @@ All models were cross validated (CV) with 10-fold CV, and we report the CV R2 an
 
 
 
-
-## Statistical methods
-Prior to model building we examined a cluster-based correlation heat map (Figure 2), which provides the Pearson correlations between all pairs of AERONET variables grouped by a decision tree. To avoid collinearity in the regression models, we kept the most relevant of a group of variables that had a correlation coefficient > |0.9|.  We then examined and picked a subset of variables connected at the mid-tier level of the tree to construct interactions. 
-We fit simple linear regression models separately for PM2.5 mass, sulfate, nitrate, EC, OC, and dust with AOD 550 nm as the sole predictor variable. Multiple linear regression models were again fit separately for PM2.5 mass, sulfate, nitrate, EC, OC, and dust, but with the combined AERONET sunphotometer and inversion product as predictor variables and model selection was conducted using the “all possible subset method”. This method constructs models based on all combinations from 1 to k variable models.  We select the best model from the combinations based on highest R2, lowest RMSE, and Mallow’s Cp statistic that is close to k+1. 
-Model selection for the Fresno and Bakersfield sites were examined separately and in combination in a “total CA” analysis, which combined data from Fresno, Bakersfield, Modesto, Visalia, and a special DRAGON campaign in late 2012-early 2013 over the region (8 co-located sites with PM2.5 mass).
-
-All models were cross validated (CV) with 10-fold CV, and we report the CV R2 and RMSE. Models were fit in R using the leaps() library.
 
 
 

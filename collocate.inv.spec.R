@@ -1,9 +1,9 @@
-# colloacte.inv.spec <- function(aeronetf="G:\\My Drive\\AERONET-MISR\\INV data\\QGS\\aeronet_locations_v3.csv",
-#                                inv="G:\\My Drive\\AERONET-MISR\\INV data\\Data\\INV_V3\\Almucantar"){
+colloacte.inv.spec <- function(aeronetf="G:\\My Drive\\AERONET-MISR\\INV data\\QGS\\aeronet_locations_v3.csv",
+                                inv="G:\\My Drive\\AERONET-MISR\\INV data\\Data\\INV_V3\\Almucantar"){
 
 #remove next 2 rows when function works
-aeronetf="G:\\My Drive\\AERONET-MISR\\INV data\\QGS\\aeronet_locations_v3.csv"
-inv="G:\\My Drive\\AERONET-MISR\\INV data\\Data\\INV_V3\\Almucantar"
+#aeronetf="G:\\My Drive\\AERONET-MISR\\INV data\\QGS\\aeronet_locations_v3.csv"
+#inv="G:\\My Drive\\AERONET-MISR\\INV data\\Data\\INV_V3\\Almucantar"
 
 library(data.table)
 library(dplyr)
@@ -70,7 +70,7 @@ for(I in epa_spec){
   #write.csv(pairs,"G:\\My Drive\\AERONET-MISR\\INV data\\Data\\EPA-SPEC\\speciation\\collocated_SPEC_AERONET.csv")
   
   #reshape by parameter names
-  file.spec.melt <- melt(file.spec.clean,id.vars = c("Parameter Name","spec_Site_Name","Date","Latitude","Longitude"))
+  file.spec.melt <- melt(file.spec.clean,id.vars = c("Parameter Name","spec_Site_Name","Date","Latitude","Longitude","State Name))
 
   #insert into list
   l[[ind]] <- file.spec.melt
@@ -79,8 +79,23 @@ for(I in epa_spec){
 
 spec.all <- rbindlist(l) #one variable with ALL speciation data 2000-2018
 
+#reshape to final data table
+spec.all.wide <- dcast(spec.all,
+                           Date + Latitude + Longitude + spec_Site_Name + `State Name` ~ `Parameter Name`,
+                          fun.aggregate =function(X) mean(X, na.rm=TRUE),
+                          value.var="value")
+#Add dust
+spec.all.wide$Dust <- 2.2 * spec.all.wide$`Aluminum PM2.5 LC` +
+  2.49 * spec.all.wide$`Silicon PM2.5 LC` +
+  1.63 * spec.all.wide$`Calcium PM2.5 LC` +
+  1.94 * spec.all.wide$`Titanium PM2.5 LC` + 
+  2.42 * spec.all.wide$`Iron PM2.5 LC`
+
+#NA for days with negative levels
+spec.all.wide$Dust[spec.all.wide$Dus<0] <- NaN
+
 #save speciation all years list
-#write.csv(spec.all,"G:\\My Drive\\AERONET-MISR\\INV data\\Data\\EPA-SPEC\\speciation\\SPEC_data_2000_2018.csv")
+#write.csv(spec.all.wide,"G:\\My Drive\\AERONET-MISR\\INV data\\Data\\EPA-SPEC\\speciation\\SPEC_data_2000_2018.csv")
 
 ######################
 # merge with INV data#
@@ -136,8 +151,7 @@ files <- subset(inv.files,inv.files$inv.filenames %in% col.data$inv.filenames )
 #merge spec data and collocated aeronet INV data
 #(1) add inv site name to speciation data
 sitenames<-spec_inv[,c("Site_Name","spec_Site_Name")]
-inv.spec <- merge(spec.all,sitenames)#642,828
-inv.spec <- filter(inv.spec,variable=="Arithmetic Mean")
+inv.spec <- merge(spec.all,sitenames)
 
 ##################################################
 #Read AERONET INV data in all US collocated sites#
@@ -167,7 +181,64 @@ setnames(aer.inv,"Time(hh:mm:ss)","hour")
 aer.inv$Date <- as.Date(aer.inv$Date, format="%d:%m:%Y")    
 
 #exclude unwanted vars
-aer.inv.clean <- aer.inv[,-c(155,154,123:150,89:121,54:76)]
+aer.inv.clean <- aer.inv[,c( "Site_Name"                                                
+                             , "Date"                                                     
+                             , "hour"                                                     
+                             , "Day_of_Year"                                              
+                             , "AOD_Coincident_Input[440nm]"                              
+                             , "AOD_Coincident_Input[675nm]"                              
+                             , "AOD_Coincident_Input[870nm]"                              
+                             , "AOD_Coincident_Input[1020nm]"                             
+                             ,"Angstrom_Exponent_440-870nm_from_Coincident_Input_AOD"    
+                             , "AOD_Extinction-Total[440nm]"                              
+                             , "AOD_Extinction-Total[675nm]"                              
+                             ,"AOD_Extinction-Total[870nm]"                              
+                             , "AOD_Extinction-Total[1020nm]"                             
+                             , "AOD_Extinction-Fine[440nm]"                               
+                             , "AOD_Extinction-Fine[675nm]"                               
+                             , "AOD_Extinction-Fine[870nm]"                               
+                             , "AOD_Extinction-Fine[1020nm]"                              
+                             , "AOD_Extinction-Coarse[440nm]"                             
+                             , "AOD_Extinction-Coarse[675nm]"                             
+                             , "AOD_Extinction-Coarse[870nm]"                             
+                             , "AOD_Extinction-Coarse[1020nm]"                            
+                             , "Extinction_Angstrom_Exponent_440-870nm-Total"             
+                             , "Single_Scattering_Albedo[440nm]"                          
+                             , "Single_Scattering_Albedo[675nm]"                          
+                             , "Single_Scattering_Albedo[870nm]"                          
+                             , "Single_Scattering_Albedo[1020nm]"                         
+                             , "Absorption_AOD[440nm]"                                    
+                             , "Absorption_AOD[675nm]"                                    
+                             ,"Absorption_AOD[870nm]"                                    
+                             , "Absorption_AOD[1020nm]"                                   
+                              , "Absorption_Angstrom_Exponent_440-870nm"                   
+                              , "Refractive_Index-Real_Part[440nm]"                        
+                              , "Refractive_Index-Real_Part[675nm]"                        
+                              , "Refractive_Index-Real_Part[870nm]"                        
+                              , "Refractive_Index-Real_Part[1020nm]"                       
+                              , "Refractive_Index-Imaginary_Part[440nm]"                   
+                              , "Refractive_Index-Imaginary_Part[675nm]"                   
+                              , "Refractive_Index-Imaginary_Part[870nm]"                   
+                              , "Refractive_Index-Imaginary_Part[1020nm]"                  
+                              , "Asymmetry_Factor-Total[440nm]"                            
+                              , "Asymmetry_Factor-Total[675nm]"                            
+                              , "Asymmetry_Factor-Total[870nm]"                            
+                              ,"Asymmetry_Factor-Total[1020nm]"                           
+                              , "Asymmetry_Factor-Fine[440nm]"                             
+                              , "Asymmetry_Factor-Fine[675nm]"                             
+                             , "Asymmetry_Factor-Fine[870nm]"                             
+                             , "Asymmetry_Factor-Fine[1020nm]"                            
+                              , "Asymmetry_Factor-Coarse[440nm]"                           
+                             , "Asymmetry_Factor-Coarse[675nm]"                           
+                              , "Asymmetry_Factor-Coarse[870nm]"                           
+                              , "Asymmetry_Factor-Coarse[1020nm]", 
+                             "Elevation(m)",
+                             "Longitude(Degrees)","Latitude(Degrees)",
+                             "Coincident_AOD440nm",
+                             "Solar_Zenith_Angle_for_Measurement_Start(Degrees)",
+                            "Std-C", "VMR-C","REff-C","VolC-C","Std-F", "VMR-F","REff-F", "VolC-F",
+                            "Std-T","VolC-T","REff-T", "VMR-T","Sphericity_Factor(%)")]
+
 aer.inv.clean$hour <- NULL
 
 #calculate daily mean
@@ -203,12 +274,6 @@ aer.inv.clean <- merge(aer.inv.clean,avail,by="Site_Name")
 
 #merge EPA speciation data and collocated aeronet INV data
 
-#reshape to final data table
-#NOT WORKING
-# final.table.wide <- dcast(inv.spec,
-#                           Date + Latitude + Longitude + Site_Name ~ `Parameter Name`,
-#                           value.var="value")
-
 #(2) add inv data to spec data
 inv.spec.data <- merge(inv.spec,aer.inv.clean,by=c("Site_Name","Date"))#158,68 (21 sites?)
 
@@ -216,5 +281,5 @@ inv.spec.data <- merge(inv.spec,aer.inv.clean,by=c("Site_Name","Date"))#158,68 (
 #write.csv(inv.spec.data,"G:\\My Drive\\AERONET-MISR\\INV data\\QGS\\inv.spec.data.csv")
 
 
-# return(inv.spec.data)
-# }
+return(inv.spec.data)
+}

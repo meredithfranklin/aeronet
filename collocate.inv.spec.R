@@ -14,10 +14,6 @@ library(raster)
 #Read EPA PM2.5 speciation data in all US sites#
 ################################################
 
-#Load dataset with inversion data and pm2.5 data
-source('G:/My Drive/AERONET-MISR/INV data/Code/collocate.inv.pm.R')
-inv.pm.data<-collocate.inv.pm()
-
 #load allaeronet locations
 aeronet <- fread(aeronetf)
 

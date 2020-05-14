@@ -156,15 +156,15 @@ wdb.f.w <-wdb.f[wdb.f$Site_Name %in% c("Fresno_2", "DRAGON_Madera_city", "DRAGON
 sd(wdb.f.w$PM25)
 wdb.f.c <-wdb.f[wdb.f$Site_Name %in% c("Denver_LaCasa", "DRAGON_Chatfield_Pk"),]
 sd(wdb.f.c$PM25)
-wdb.f.e <-wdb.f[wdb.f$Site_Name %in% c("CCNY","USDA_Howard","DRAGON_PATUX","NASA_LaRC", "EPA-Res_Triangle_Pk", "Georgia_Tech"),]
-sd(wdb.f.e$PM25)
+wdb.f.e <-wdb.f[wdb.f$Site_Name %in% c("DRAGON_PATUX","NASA_LaRC"),]
+dim(wdb.f.e)
 ```
 
 #XGBoost
 ```{r,echo=T,results='hide'}
 #clean working database to complete cases
-setDF(wdb.f)
-dataset <- wdb.f[,  names(wdb.f)%in%vars$Var1]
+setDF(wdb.f.e)
+dataset <- wdb.f.e[,  names(wdb.f.e)%in%vars$Var1]
 #dataset[dataset=='-999']<-NA
 #dataset <-Filter(function(x)!all(is.na(x)), dataset )
 #dataset<-dataset[which(!is.na(dataset$PM25)),]

@@ -42,12 +42,10 @@ spec.pal = colorNumeric(c('darkblue','dodgerblue','purple','purple'),
                         domain=spec.locs$N)
 
   leaflet() %>% 
-  addProviderTiles('Stamen.TonerLite') %>% 
-   addCircles(data=spec.locs, lat=~Latitude.Degrees._mean,lng=~Longitude.Degrees._mean,
-              label=~Site_Name,color="red", opacity=1, fillOpacity=1, radius=75000) %>%
-    addCircles(data=pm.locs, lat=~Latitude.Degrees., lng=~Longitude.Degrees., label=~Site_Name,color="blue",
-            opacity=1, fillOpacity=1, radius=50000) %>%
-    addLegend("bottomright", colors =c("red",  "blue"), labels= c("PM2.5","PM2.5 speciation"),  opacity = 1)
-  #addLegend('bottomleft', pal=spec.pal, values=wdb.s$N,
-   #         title='N spec', opacity=1)
+    addProviderTiles('Stamen.TonerLite') %>% 
+     addCircleMarkers(data=spec.locs, lat=~Latitude.Degrees._mean,lng=~Longitude.Degrees._mean,
+              label=~Site_Name,color="red", opacity=1, fillOpacity=1, radius=5) %>%
+      addCircleMarkers(data=pm.locs, lat=~Latitude.Degrees., lng=~Longitude.Degrees., label=~Site_Name,color="blue",
+            opacity=1, fillOpacity=1, radius=2) %>%
+      addLegend("bottomright", colors =c("red",  "blue"), labels= c("PM2.5","PM2.5 speciation"),  opacity = 1)
 ```

@@ -1,10 +1,5 @@
 Var1
 PM25
-AOD_Coincident_Input[440nm]
-AOD_Coincident_Input[675nm]
-AOD_Coincident_Input[870nm]
-AOD_Coincident_Input[1020nm]
-Angstrom_Exponent_440-870nm_from_Coincident_Input_AOD
 AOD_Extinction-Total[440nm]
 AOD_Extinction-Total[675nm]
 AOD_Extinction-Total[870nm]

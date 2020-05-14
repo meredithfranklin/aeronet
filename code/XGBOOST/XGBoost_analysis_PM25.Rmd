@@ -49,7 +49,7 @@ vars <- fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/a
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 #save results
 #res_dir <- "C:/Users/msorekha/Documents/Projects/JPL/MISR/plots/Stage2/"
-res_dir <- "/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/results"
+res_dir <- "/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/results/"
 setwd("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/code/XGBOOST/")
 
 ```
@@ -163,8 +163,8 @@ dim(wdb.f.e)
 #XGBoost
 ```{r,echo=T,results='hide'}
 #clean working database to complete cases
-setDF(wdb.f.e)
-dataset <- wdb.f.e[,  names(wdb.f.e)%in%vars$Var1]
+setDF(wdb.f)
+dataset <- wdb.f[,  names(wdb.f)%in%vars$Var1]
 #dataset[dataset=='-999']<-NA
 #dataset <-Filter(function(x)!all(is.na(x)), dataset )
 #dataset<-dataset[which(!is.na(dataset$PM25)),]
@@ -199,8 +199,6 @@ print(fit.xgb)
 #interpretation with SHAP-all vars
 ```{r}
 
-
-#source('shap.R')
 wdb.na <- setDT(dataset)
 #arrange data
 names(wdb.na) <- sub("_","",names(wdb.na))
@@ -212,7 +210,7 @@ data_2 <- wdb.na[,-c("PM25")]
 data_dmy = dummyVars(" ~ .", data = data_2, fullRank=T)
 data_x = predict(data_dmy, newdata = data_2)
 
-## Create the xgboost model
+# Create the xgboost model
 model_xgb = xgboost(data = data_x, 
                    nround = 10, 
                    objective="reg:linear",
@@ -223,48 +221,21 @@ shap_result <- shap.values(xgb_model = model_xgb, X_train = data_x)
 shap_long <- shap.prep(xgb_model = model_xgb, X_train = data_x)
 
 # **SHAP summary plot**
+
+pdf(paste0(res_dir,"shap_PMAODINV_all.pdf"))
 shap.plot.summary(shap_long, dilute=15)
-
-
-## Calculate shap values
-#shap_result = shap.score.rank(xgb_model = model_xgb, 
-#                             X_train =data_x,
-#                              shap_approx = F)
-
-# is the same as: using given shap_contrib
-#shap_long <- shap.prep(shap_contrib = shap_result$shap_score, X_train = data_x)
-
-
-# `shap_approx` comes from `approxcontrib` from xgboost documentation. 
-# Faster but less accurate if true. Read more: help(xgboost)
-
-## Plot var importance based on SHAP
-#var_importance(shap_result$mean_shap_score, top_n=10)
-
-## Prepare data for top N variables
-#shap_long <- shap.prep(xgb_model=model_xgb,
-#                           X_train = data_x , 
-#                           top_n = 10)
-
-source('plot.shap.summary.R') #Thanks to Y.LIU (MSSM)
-plot.shap.summary(shap_long)#Plot shap overall metrics
-
-tiff(paste0(res_dir,"shap_PMAODINV_CA.tif"), res = 300)
-plot.shap.summary(shap_long)#Plot shap overall metrics
 dev.off()
 
 ## SHAP plot per variable 
-tiff(paste0(res_dir,"shap1_ca_pervar.tif"))
-xgb.plot.shap(data = data_x, # input data
-              model = model_xgb, # xgboost model
-              features = names(shap_result$mean_shap_score[1:10]), # only top 10 var
-              n_col = 3, # layout option
-              plot_loess = T # add red line to plot
-              )
-dev.off()
+#tiff(paste0(res_dir,"shap1_ca_pervar.tif"))
+#xgb.plot.shap(data = data_x, # input data
+#              model = model_xgb, # xgboost model
+#              features = names(shap_result$mean_shap_score[1:10]), # only top 10 var
+#              n_col = 3, # layout option
+#              plot_loess = T # add red line to plot
+#              )
+#dev.off()
 
-# Do some classical plots
-#ggplotgui::ggplot_shiny(wdb.na)
 ```
 
 

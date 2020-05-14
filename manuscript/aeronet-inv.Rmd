@@ -89,33 +89,14 @@ output:
 
 \introduction
 
-A large body of literature has shown that satellite-derived aerosol optical depth (AOD), typically retrieved at 550 nm wavelength, reliably correlates with mass-volume concentrations of fine mode particulate matter with aerodynamic diameter less than 2.5 $\mu$m (PM$_{2.5}$)\cite{VanDonkelaar2019}. Studies that have used satellite observations to generate PM$_{2.5}$ have been instrumental for air pollution - health effects research. 
-The associations between AOD and different chemical components of PM$_{2.5}$ are lesser known. A handful of studies using the Multiangle Imaging SpectroRadiometer (MISR), an instrument onboard the NASA Terra satellite that provides observations of optical properties by particle type (size, shape, absorption), have provided evidence that different optical properties relate to different physical and chemical properties of particulate matter \cite{Franklin2017,Meng2018} Results have been somewhat inconsistent, showing differences depending on geographic area of analysis, optical components used, and statistical tools applied.
+A large body of literature has shown that satellite-derived aerosol optical depth (AOD), typically retrieved at 550 nm wavelength, reliably correlates with mass-volume concentrations of particulate matter with aerodynamic diameter less than 2.5 $\mu$m (PM$_{2.5}$) \cite{VanDonkelaar2019}. Studies that have used satellite observations to generate PM$_{2.5}$ have been instrumental in both global \cite{Cohen2017} and regional \cite{Chau2020} air pollution - health effects research . 
+The associations between AOD and different chemical components of PM$_{2.5}$ are lesser known. A handful of studies using the Multiangle Imaging SpectroRadiometer (MISR), an instrument onboard the NASA Terra satellite that provides observations of aerosol optical depth by particle type (size, shape, absorption), have shown evidence that different optical properties relate to different physical \cite{Franklin2017} and chemical properties of particulate matter \cite{Meng2018, Franklin2018, Chau2020}. However, results have been somewhat inconsistent, showing differences depending on geographic area of analysis, optical components used, and statistical tools applied.
 
 The purpose of this analysis is to make a detailed examination of the statistical relationships between ground-level PM$_{2.5}$ and PM$_{2.5}$ chemical components (nitrate, sulfate, elemental carbon, organic carbon, dust) and optical measures of aerosols (e.g. aerosol optical depth, angstrom exponent).
 
 AERONET \cite{Holben1998, Shin2018b, Shin2019b, Shin2019}
 
-- Specific sections of the manuscript:
-
-  - `running` with `title` and `author`
-
-  - `competinginterests`
-
-  - `copyrightstatement` (optional)
-
-  - `availability` (strongly recommended if any used), one of `code`, `data`, or `codedata`
-
-  - `authorcontribution`
-
-  - `disclaimer`
-
-  - `acknowledgements`
-
-See the defaults and examples from the skeleton and the official Copernicus documentation for details.
-
-**Important**: Always double-check with the official manuscript preparation guidelines at [https://publications.copernicus.org/for_authors/manuscript_preparation.html](https://publications.copernicus.org/for_authors/manuscript_preparation.html), especially the sections "Technical instructions for LaTeX" and "Manuscript composition".
-Please contact Daniel Nüst, `daniel.nuest@uni-muenster.de`, with any problems.
+AERONET sun/sky radiometers measure direct solar radiation and sky radiation. The measured data are automat- ically analysed using the AERONET inversion algorithm (Dubovik et al., 2006). The retrieved aerosol products are available from the AERONET database (https://aeronet.gsfc. nasa.gov/, last access: 31 August 2018). The recently re- leased version 3 of the AERONET retrieval added
 
 # Methods
 

@@ -147,15 +147,15 @@ dev.off()
 ```{r}
 #wdb.f<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AOD.pm.inv_CA.csv")
 # regional subsets
-wdb.s.w <-wdb.s[wdb.s$Site_Name %in% c("Fresno_2", "DRAGON_Madera_city", "DRAGON_Tranquility","DRAGON_Bakersfield"),]
+wdb.s.w <-wdb.s[wdb.s$Site_Name %in% c("Fresno_2", "Fresno","DRAGON_Madera_city", "DRAGON_Tranquility","DRAGON_Bakersfield", "DRAGON_Garland", "Modesto"),]
 dim(wdb.s.w)
 mean(wdb.s.w$value)
 sd(wdb.s.w$value)
-wdb.s.c <-wdb.s[wdb.s$Site_Name %in% c("Denver_LaCasa", "DRAGON_Chatfield_Pk"),]
+wdb.s.c <-wdb.s[wdb.s$Site_Name %in% c("Denver_LaCasa","DRAGON_Denver_LaCasa", "DRAGON_Chatfield_Pk", "NEON_RNMP"),] # only LaCasa
 dim(wdb.s.c)
 mean(wdb.s.c$value)
 sd(wdb.s.c$value)
-wdb.s.e <-wdb.s[wdb.s$Site_Name %in% c("CCNY","USDA_Howard","DRAGON_PATUX","NASA_LaRC", "EPA-Res_Triangle_Pk", "Georgia_Tech"),]
+wdb.s.e <-wdb.s[wdb.s$Site_Name %in% c("USDA_Howard","DRAGON_LAREL","DRAGON_PATUX","NASA_LaRC", "DRAGON_Essex","Big_Meadows","CCNY"),]
 dim(wdb.s.e)
 mean(wdb.s.e$value)
 sd(wdb.s.e$value)

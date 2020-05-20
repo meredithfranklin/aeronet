@@ -156,6 +156,10 @@ wdb.f.w <-wdb.f[wdb.f$Site_Name %in% c("Fresno_2", "Fresno","DRAGON_Madera_city"
 dim(wdb.f.w)
 wdb.f.c <-wdb.f[wdb.f$Site_Name %in% c("Denver_LaCasa","DRAGON_Denver_LaCasa", "DRAGON_Chatfield_Pk", "NEON_RNMP"),]
 dim(wdb.f.c)
+
+wdb.f.c2 <-wdb.f[wdb.f$Site_Name %in% c("St_Louis_University"),]
+dim(wdb.f.c2)
+
 wdb.f.e <-wdb.f[wdb.f$Site_Name %in% c("USDA_Howard","DRAGON_LAREL","DRAGON_PATUX","NASA_LaRC", "DRAGON_Essex","Big_Meadows","CCNY"),]
 dim(wdb.f.e)
 ```
@@ -163,8 +167,8 @@ dim(wdb.f.e)
 #XGBoost
 ```{r,echo=T,results='hide'}
 #clean working database to complete cases
-setDF(wdb.f.w)
-dataset <- wdb.f.w[,  names(wdb.f.w)%in%vars$Var1]
+setDF(wdb.f.c2)
+dataset <- wdb.f.c2[,  names(wdb.f.c2)%in%vars$Var1]
 #dataset[dataset=='-999']<-NA
 #dataset <-Filter(function(x)!all(is.na(x)), dataset )
 #dataset<-dataset[which(!is.na(dataset$PM25)),]
@@ -222,7 +226,7 @@ shap_long <- shap.prep(xgb_model = model_xgb, X_train = data_x)
 
 # **SHAP summary plot**
 
-pdf(paste0(res_dir,"shap_PMAODINV_west.pdf"))
+pdf(paste0(res_dir,"shap_PMAODINV_stl.pdf"))
 shap.plot.summary(shap_long, dilute=15)
 dev.off()
 

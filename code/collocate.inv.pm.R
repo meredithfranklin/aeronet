@@ -1,6 +1,7 @@
 #function to collocate inversion data and PM2.5 data from collocated sited <5km
+#coll.dist should be inserted in meters
 
-collocate.inv.pm <- function(epa="G:\\My Drive\\AERONET-MISR\\INV data\\Data\\aq.sites.csv",
+collocate.inv.pm <- function(coll.dist,epa="G:\\My Drive\\AERONET-MISR\\INV data\\Data\\aq.sites.csv",
                              aeronetf="G:\\My Drive\\AERONET-MISR\\INV data\\QGS\\aeronet_locations_v3.csv",
                              inv="G:\\My Drive\\AERONET-MISR\\INV data\\Data\\INV_V3\\Almucantar"){
 
@@ -74,7 +75,7 @@ dist <- pointDistance(aeronet[,c(2:3)], epa.loc[,c(2:1)], lonlat=TRUE, allpairs=
 
 #distance between sites in meters
 #remove collocations beyond 5km
-dist[dist>5000] <- NA
+dist[dist>coll.dist] <- NA
 dist.ind <- which(!is.na(dist),arr.ind=TRUE)
 pairs <- cbind(aeronet[dist.ind[,1],],epa.loc[dist.ind[,2],]) #151 PM2.5 sites collocated with AERONET sites<5km away
 
@@ -156,7 +157,64 @@ setnames(aer.inv,"Time(hh:mm:ss)","hour")
 aer.inv$Date <- as.Date(aer.inv$Date, format="%d:%m:%Y")    
 
 #exclude unwanted vars
-aer.inv.clean <- aer.inv[,-c(155,154,123:150,89:121,54:76)]
+aer.inv.clean <- aer.inv[,c( "Site_Name"                                                
+                             , "Date"                                                     
+                             , "hour"                                                     
+                             , "Day_of_Year"                                              
+                             , "AOD_Coincident_Input[440nm]"                              
+                             , "AOD_Coincident_Input[675nm]"                              
+                             , "AOD_Coincident_Input[870nm]"                              
+                             , "AOD_Coincident_Input[1020nm]"                             
+                             ,"Angstrom_Exponent_440-870nm_from_Coincident_Input_AOD"    
+                             , "AOD_Extinction-Total[440nm]"                              
+                             , "AOD_Extinction-Total[675nm]"                              
+                             ,"AOD_Extinction-Total[870nm]"                              
+                             , "AOD_Extinction-Total[1020nm]"                             
+                             , "AOD_Extinction-Fine[440nm]"                               
+                             , "AOD_Extinction-Fine[675nm]"                               
+                             , "AOD_Extinction-Fine[870nm]"                               
+                             , "AOD_Extinction-Fine[1020nm]"                              
+                             , "AOD_Extinction-Coarse[440nm]"                             
+                             , "AOD_Extinction-Coarse[675nm]"                             
+                             , "AOD_Extinction-Coarse[870nm]"                             
+                             , "AOD_Extinction-Coarse[1020nm]"                            
+                             , "Extinction_Angstrom_Exponent_440-870nm-Total"             
+                             , "Single_Scattering_Albedo[440nm]"                          
+                             , "Single_Scattering_Albedo[675nm]"                          
+                             , "Single_Scattering_Albedo[870nm]"                          
+                             , "Single_Scattering_Albedo[1020nm]"                         
+                             , "Absorption_AOD[440nm]"                                    
+                             , "Absorption_AOD[675nm]"                                    
+                             ,"Absorption_AOD[870nm]"                                    
+                             , "Absorption_AOD[1020nm]"                                   
+                             , "Absorption_Angstrom_Exponent_440-870nm"                   
+                             , "Refractive_Index-Real_Part[440nm]"                        
+                             , "Refractive_Index-Real_Part[675nm]"                        
+                             , "Refractive_Index-Real_Part[870nm]"                        
+                             , "Refractive_Index-Real_Part[1020nm]"                       
+                             , "Refractive_Index-Imaginary_Part[440nm]"                   
+                             , "Refractive_Index-Imaginary_Part[675nm]"                   
+                             , "Refractive_Index-Imaginary_Part[870nm]"                   
+                             , "Refractive_Index-Imaginary_Part[1020nm]"                  
+                             , "Asymmetry_Factor-Total[440nm]"                            
+                             , "Asymmetry_Factor-Total[675nm]"                            
+                             , "Asymmetry_Factor-Total[870nm]"                            
+                             ,"Asymmetry_Factor-Total[1020nm]"                           
+                             , "Asymmetry_Factor-Fine[440nm]"                             
+                             , "Asymmetry_Factor-Fine[675nm]"                             
+                             , "Asymmetry_Factor-Fine[870nm]"                             
+                             , "Asymmetry_Factor-Fine[1020nm]"                            
+                             , "Asymmetry_Factor-Coarse[440nm]"                           
+                             , "Asymmetry_Factor-Coarse[675nm]"                           
+                             , "Asymmetry_Factor-Coarse[870nm]"                           
+                             , "Asymmetry_Factor-Coarse[1020nm]", 
+                             "Elevation(m)",
+                             "Longitude(Degrees)","Latitude(Degrees)",
+                             "Coincident_AOD440nm",
+                             "Solar_Zenith_Angle_for_Measurement_Start(Degrees)",
+                             "Std-C", "VMR-C","REff-C","VolC-C","Std-F", "VMR-F","REff-F", "VolC-F",
+                             "Std-T","VolC-T","REff-T", "VMR-T","Sphericity_Factor(%)")]
+
 aer.inv.clean$hour <- NULL
 
 #calculate daily mean
@@ -192,7 +250,7 @@ aer.inv.clean <- merge(aer.inv.clean,avail,by="Site_Name")
 
 #merge EPA data and collocated aeronet INV data
 #(2) add inv data to pm data
-inv.pm.data <- merge(inv.pm,aer.inv.clean,by=c("Site_Name","Date"))#12,926
+inv.pm.data <- merge(inv.pm,aer.inv.clean,by=c("Site_Name","Date"))
 
 #save file
 #write.csv(inv.pm.data,"G:\\My Drive\\AERONET-MISR\\INV data\\QGS\\inv.pm.data.csv")

@@ -11,7 +11,7 @@ inv.pm.spec <- fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/ae
 #Calculate correlation coefficient
 aodpm <- inv.pm.spec%>%
   group_by(Site_Name)%>%
-  summarise(R=cor(PM25,`AOD_Coincident_Input[440nm]`)^2,Lat=mean(`Latitude(Degrees)`),
+  summarise(R=cor(PM25,`VolC-F`)^2,Lat=mean(`Latitude(Degrees)`),
             Long=mean(`Longitude(Degrees)`),N=sum(N))
 setDT(aodpm)
 mean(aodpm$R)
@@ -26,15 +26,15 @@ aodpm %>%
   theme_minimal()+
   scale_color_viridis_c(option="C")+
   theme(axis.text.x=element_text(angle = 90, hjust = 1))
-
+mean(aodpm$R)
 #ggsave("G:\\My Drive\\AERONET-MISR\\INV data\\figures\\aod440.pm.png", width=8,height=5)  
 
-ggsave("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/results/aod440.pm.png")
+ggsave("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/results/aod675.pm.png")
 
 #Calculate correlation coefficient
 aodpm2 <- inv.pm.spec%>%
   group_by(Site_Name)%>%
-  summarise(R=cor(PM25,`AOD_Extinction-Fine[870nm]`)^2,Lat=mean(`Latitude(Degrees)`),
+  summarise(R=cor(PM25,`REff-T`)^2,Lat=mean(`Latitude(Degrees)`),
             Long=mean(`Longitude(Degrees)`),N=sum(N))
 setDT(aodpm2)
 mean(aodpm2$R)

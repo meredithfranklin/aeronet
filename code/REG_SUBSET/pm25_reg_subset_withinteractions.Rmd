@@ -35,11 +35,28 @@ predict.regsubsets =function (object ,newdata ,id ,...){
 ## Load the working data base
 ```{r}
 #EPA speciation PM2.5----
-wdb.aod<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AODonly.pm.CSN.csv")
-wdb.aod$V1<-NULL
+#wdb.aod<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AODonly.pm.CSN.csv")
+#wdb.aod$V1<-NULL
 
-wdb.inv<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AOD.pm.inv.CSN.csv")
+#wdb.inv<-fread("C:/Users/msorekha/Documents/Projects/JPL/MISR/Data/WDB/AOD.pm.inv.CSN.csv")
 
+wdb.f <-fread("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/data/inv.pm.data.csv")
+
+# west
+wdb.f.w <-wdb.f[wdb.f$Site_Name %in% c("Fresno_2", "Fresno","DRAGON_Madera_city", "DRAGON_Tranquility","DRAGON_Bakersfield", "DRAGON_Garland", "Modesto"),]
+dim(wdb.f.w)
+
+# central
+wdb.f.c <-wdb.f[wdb.f$Site_Name %in% c("Denver_LaCasa","DRAGON_Denver_LaCasa", "DRAGON_Chatfield_Pk", "NEON_RNMP"),]
+dim(wdb.f.c)
+
+# St Louis (optional)
+wdb.f.c2 <-wdb.f[wdb.f$Site_Name %in% c("St_Louis_University"),]
+dim(wdb.f.c2)
+
+# east
+wdb.f.e <-wdb.f[wdb.f$Site_Name %in% c("USDA_Howard","DRAGON_LAREL","DRAGON_PATUX","NASA_LaRC", "DRAGON_Essex","Big_Meadows","CCNY"),]
+dim(wdb.f.e)
 ```
 #initial variable list
 ```{r}

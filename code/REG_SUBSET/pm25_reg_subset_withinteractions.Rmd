@@ -55,7 +55,7 @@ wdb.inv.c2 <-wdb.inv[wdb.inv$Site_Name %in% c("St_Louis_University"),]
 dim(wdb.inv.c2)
 
 # east
-wdb.inv.e <-wdb.inv[wdb.inv$Site_Name %in% c("USDA_Howard","DRAGON_LAREL","DRAGON_PATUX","NASA_LaRC", "DRAGON_Essex","Big_Meadows","CCNY"),]
+wdb.inv.e <-wdb.inv[wdb.inv$Site_Name %in% c("USDA_Howard","DRAGON_LAREL","DRAGON_PATUX","NASA_LaRC", "DRAGON_Essex","Big_Meadows"),]
 dim(wdb.inv.e)
 ```
 #initial variable list

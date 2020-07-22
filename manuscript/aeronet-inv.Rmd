@@ -91,7 +91,7 @@ output:
 
 A large body of literature has shown that satellite-derived aerosol optical depth (AOD) reliably correlates with mass-volume concentrations of particulate matter with aerodynamic diameter less than 2.5 $\mu$m (PM$_{2.5}$) \cite{VanDonkelaar2019}. Studies that have used satellite AOD to generate PM$_{2.5}$ have been instrumental in facilitating exposure assessments for both global \cite{Cohen2017} and regional \cite{Chau2020} health effects research. 
 Satellites typically retreive AOD at 550 nm
-The associations between AOD and different chemical components of PM$_{2.5}$ are lesser known. A handful of studies using the Multiangle Imaging SpectroRadiometer (MISR), an instrument onboard the NASA Terra satellite that provides observations of aerosol optical depth by particle type (size, shape, absorption), have shown evidence that different optical properties relate to different physical \cite{Franklin2017} and chemical properties of particulate matter \cite{Meng2018, Franklin2018, Chau2020}. However, results have been somewhat inconsistent, showing differences depending on geographic area of analysis, optical components used, and statistical tools applied.
+The associations between AOD and different chemical components of PM$_{2.5}$ are lesser known. A handful of studies using the Multiangle Imaging SpectroRadiometer (MISR), an instrument onboard the NASA Terra satellite that provides observations of aerosol optical depth by particle type (size, shape, absorption), have provided evidence that different optical properties relate to different physical \cite{Franklin2017} and chemical properties of particulate matter \cite{Meng2018, Franklin2018, Chau2020}. However, results have been somewhat inconsistent, showing differences depending on geographic area of analysis, optical components used, and statistical tools applied.
 
 The purpose of this analysis is to make a detailed examination of the statistical relationships between ground-level PM$_{2.5}$ and PM$_{2.5}$ chemical components (nitrate, sulfate, elemental carbon, organic carbon, dust) and optical measures of aerosols (e.g. aerosol optical depth, angstrom exponent).
 
@@ -101,7 +101,7 @@ AERONET sun/sky radiometers measure direct solar radiation and sky radiation. Th
 
 # Methods
 
-The study encompasses the San Joaquin Valley region of central California (Figure 1). We leverage datasets available at four sites - Bakersfield, Fresno, Modesto, and Visalia. At these sites there are co-located instruments from EPA’s chemical speciation network (CSN), EPA’s air quality system (AQS) and NASA’s AERONET network. 
+The study encompasses three regions of the continental U.S., west (Californa Central Valley), central (Colorado), and east (New York, Maryland, Virgina) (Figure 1).  At these sites there are co-located instruments from EPA’s chemical speciation network (CSN), EPA’s air quality system (AQS) and NASA’s AERONET network. 
 ```{r, out.width = "8.3cm", echo = FALSE, fig.cap = "Map of Study Area"}
 knitr::include_graphics("site_map.png")
 ```

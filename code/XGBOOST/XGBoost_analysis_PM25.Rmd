@@ -168,8 +168,8 @@ dim(wdb.f.e)
 ```{r,echo=T,results='hide'}
 #clean working database to complete cases
 #wdb.f.w, wdb.f.c, wdb.f.e
-setDF(wdb.f)
-dataset <- wdb.f[,  names(wdb.f)%in%vars$Var1]
+setDF(wdb.f.c2)
+dataset <- wdb.f.c2[,  names(wdb.f.c2)%in%vars$Var1]
 #dataset[dataset=='-999']<-NA
 #dataset <-Filter(function(x)!all(is.na(x)), dataset )
 #dataset<-dataset[which(!is.na(dataset$PM25)),]
@@ -194,6 +194,12 @@ fit.xgb <- train(PM25~., data=dataset, method = "xgbTree",
                  tuneGrid = tune_grid,
                  tuneLength = 10, importance=TRUE)
 #saveRDS(fit.xgb,paste0(res_dir,"fit.xgb.train.rds"))
+pred<-predict(fit.xgb, dataset)
+wdb.f.pred<-cbind(wdb.f.c2,pred)
+gplot = ggplot(wdb.f.pred, aes(x=pred, y=PM25)) + geom_point() + geom_smooth(method=lm) + geom_abline() + theme_bw()
+png("pm25_preds_c2.png")
+print(gplot)
+dev.off()
 ```
 #results 
 ```{r}

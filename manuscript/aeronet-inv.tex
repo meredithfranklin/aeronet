@@ -134,70 +134,43 @@ institution/company.}
 \introduction
 
 A large body of literature has shown that satellite-derived aerosol
-optical depth (AOD), typically retrieved at 550 nm wavelength, reliably
-correlates with mass-volume concentrations of fine mode particulate
-matter with aerodynamic diameter less than 2.5 \(\mu\)m
-(PM\(_{2.5}\))\cite{VanDonkelaar2019}. Studies that have used satellite
-observations to generate PM\(_{2.5}\) have been instrumental for air
-pollution - health effects research. The associations between AOD and
-different chemical components of PM\(_{2.5}\) are lesser known. A
-handful of studies using the Multiangle Imaging SpectroRadiometer
-(MISR), an instrument onboard the NASA Terra satellite that provides
-observations of optical properties by particle type (size, shape,
-absorption), have provided evidence that different optical properties
-relate to different physical and chemical properties of particulate
-matter \cite{Franklin2017,Meng2018} Results have been somewhat
+optical depth (AOD) reliably correlates with mass-volume concentrations
+of particulate matter with aerodynamic diameter less than 2.5 \(\mu\)m
+(PM\(_{2.5}\)) \cite{VanDonkelaar2019}. Studies that have used satellite
+AOD to generate PM\(_{2.5}\) have been instrumental in facilitating
+exposure assessments for both global \cite{Cohen2017} and regional
+\cite{Chau2020} health effects research. The associations between AOD
+and different components of PM are lesser known. A handful of studies
+using the Multiangle Imaging SpectroRadiometer (MISR), an instrument
+onboard the NASA Terra satellite that provides observations of aerosol
+optical depth by particle type (size, shape, absorption), have provided
+evidence that different optical properties relate to different physical
+\cite{Franklin2017} and chemical properties of particulate matter
+\cite{Meng2018, Franklin2018, Chau2020}. However, results have been
 inconsistent, showing differences depending on geographic area of
 analysis, optical components used, and statistical tools applied.
-
-The purpose of this analysis is to make a detailed examination of the
-statistical relationships between ground-level PM\(_{2.5}\) and
-PM\(_{2.5}\) chemical components (nitrate, sulfate, elemental carbon,
-organic carbon, dust) and optical measures of aerosols (e.g.~aerosol
-optical depth, angstrom exponent).
+Satellite AOD is retrieved The purpose of this analysis is to make a
+detailed examination of the statistical relationships between
+ground-level PM\(_{2.5}\) and PM\(_{2.5}\) chemical components (nitrate,
+sulfate, elemental carbon, organic carbon, dust) and optical measures of
+aerosols (e.g.~aerosol optical depth, angstrom exponent).
 
 AERONET \cite{Holben1998, Shin2018b, Shin2019b, Shin2019}
 
-\begin{itemize}
-\item
-  Specific sections of the manuscript:
-
-  \begin{itemize}
-  \item
-    \texttt{running} with \texttt{title} and \texttt{author}
-  \item
-    \texttt{competinginterests}
-  \item
-    \texttt{copyrightstatement} (optional)
-  \item
-    \texttt{availability} (strongly recommended if any used), one of
-    \texttt{code}, \texttt{data}, or \texttt{codedata}
-  \item
-    \texttt{authorcontribution}
-  \item
-    \texttt{disclaimer}
-  \item
-    \texttt{acknowledgements}
-  \end{itemize}
-\end{itemize}
-
-See the defaults and examples from the skeleton and the official
-Copernicus documentation for details.
-
-\textbf{Important}: Always double-check with the official manuscript
-preparation guidelines at
-\url{https://publications.copernicus.org/for_authors/manuscript_preparation.html},
-especially the sections ``Technical instructions for LaTeX'' and
-``Manuscript composition''. Please contact Daniel Nüst,
-\texttt{daniel.nuest@uni-muenster.de}, with any problems.
+AERONET sun/sky radiometers measure direct solar radiation and sky
+radiation. The measured data are automat- ically analysed using the
+AERONET inversion algorithm (Dubovik et al., 2006). The retrieved
+aerosol products are available from the AERONET database
+(https://aeronet.gsfc. nasa.gov/, last access: 31 August 2018). The
+recently re- leased version 3 of the AERONET retrieval added
 
 \section{Methods}
 
-The study encompasses the San Joaquin Valley region of central
-California (Figure 1). We leverage datasets available at four sites -
-Bakersfield, Fresno, Modesto, and Visalia. At these sites there are
-co-located instruments from EPA's chemical speciation network (CSN),
-EPA's air quality system (AQS) and NASA's AERONET network.
+The study encompasses three regions of the continental U.S., west
+(Californa Central Valley), central (Colorado), and east (New York,
+Maryland, Virgina) (Figure 1). At these sites there are co-located
+instruments from EPA's chemical speciation network (CSN), EPA's air
+quality system (AQS) and NASA's AERONET network.
 
 \begin{figure}
 \includegraphics[width=8.3cm]{site_map} \caption{Map of Study Area}\label{fig:unnamed-chunk-1}
@@ -212,13 +185,13 @@ of aerosol optical properties at multiple wavelengths and have been used
 extensively to validate ``top-down'' satellite observations of related
 properties. Wavelength-specific AOD and angstrom exponents are the
 primary sunphotometer variables. Using quadratic log-log interpolation
-we calculated AOD 550 nm from AOD 440, 500, 675, 870 nm in log-log
-space. AOD at 550 nm is the most common wavelength retrieved from
-satellite instruments. A retrieval-based AERONET product, called the
-inversion product, provides an additional suite of aerosol properties
-that help distinguish size (fine, coarse effective radius), shape
-(asymmetry), and absorption. We excluded sunphotometer and inversion
-variables that had a significant proportion of missing data
+we calculated AOD 550 nm from AOD 440, 500, 675, 870 nm in log-log space
+\cite{Sorek-Hamer2020}. AOD at 550 nm is the most common wavelength
+retrieved from satellite instruments. A retrieval-based AERONET product,
+called the inversion product, provides an additional suite of aerosol
+properties that help distinguish size (fine, coarse effective radius),
+shape (asymmetry), and absorption. We excluded sunphotometer and
+inversion variables that had a significant proportion of missing data
 (\textasciitilde{}90\% missing). A list of the variables included in the
 analysis are shown in the Appendix. In a separate test we examine data
 from the SPARTAN site in Rehovot, Israel. The SPARTAN network provides
@@ -268,8 +241,6 @@ over the region (8 co-located sites with PM2.5 mass).
 
 All models were cross validated (CV) with 10-fold CV, and we report the
 CV R2 and RMSE. Models were fit in R using the leaps() library.
-
-\section{Results}
 
 \section{Results}
 

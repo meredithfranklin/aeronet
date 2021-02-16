@@ -54,6 +54,9 @@ setwd("/Volumes/GoogleDrive/My Drive/AERONET-MISR/Paper#2-RSoE/aeronet/aeronet/c
 
 ```
 
+
+
+
 #XGBoost
 ```{r,echo=F,results='hide'}
 #clean working database to complete cases

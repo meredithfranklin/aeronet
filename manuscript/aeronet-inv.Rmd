@@ -7,10 +7,11 @@ author:
     affiliation: 1
     email: meredith.franklin@usc.edu
     corresponding: true
-  - given_name: Meytar
-    surname: Sorek-Hamer
-    affiliation: 2
+  - given_name: Khang
+    surname: Chau
+    affiliation: 1
     email:
+    corresponding: true
   - given_name: Olga  
     surname: Kalashnikova
     affiliation: 3 
@@ -20,6 +21,10 @@ author:
   - given_name: David
     surname: Diner
     affiliation: 3
+  - given_name: Meytar
+    surname: Sorek-Hamer
+    affiliation: 2
+    email:
     
 # If you have more than one corresponding author, add them manually using the following structure:
 # Two authors: \correspondence{Daniel Nüst (daniel.nuest@uni-muenster.de) and Josiah Carberry (j.carberry@orcid.org)}

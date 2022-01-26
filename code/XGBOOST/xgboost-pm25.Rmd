@@ -1,0 +1,193 @@
+---
+title: "AERONET - Interpolate AOD 550nm & XGBoost by Regions"
+author: "Meytar Sorek-Hamer, Meredith Franklin, Khang Chau"
+date: "`r gsub(' 0', ' ', format(Sys.time(), '%B %d, %Y'))`"
+output: 
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
+fontfamily: mathpazo
+fontsize: 11pt
+knit: (function(inputFile, encoding) { 
+  out_dir = gsub("code/XGBOOST", "reports", dirname(inputFile));
+  rmarkdown::render(
+    inputFile,
+    encoding = encoding, 
+    output_file = file.path(out_dir, 'xgboost-pm25.pdf')) })
+---
+
+```{r start, include = FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE)
+```
+
+<!-- Read Inversion data -->
+```{r inv-data}
+source_lines = function(file, end){
+    source(textConnection(readLines(file, n = end)),
+           local = knitr::knit_global())}
+
+script_end = 82
+
+# Source data import codes based
+# Needs this in Rstudio to handle weird inconsistent getwd() folder when knit
+if(grepl("XGBOOST", getwd())){
+  source_lines("xgboost-pm25-regions.R", end = script_end)
+  # source("xgboost-pm25-regions-data.R", local = knitr::knit_global())
+} else{
+  source_lines("code/XGBOOST/xgboost-pm25-regions.R", end = script_end)
+  # source("code/XGBOOST/xgboost-pm25-regions-data.R", local = knitr::knit_global())
+}
+```
+
+<!-- Read XGBoost results -->
+```{r xgb-results}
+# res_set of XGBOOST results to show:
+# - v1: 'AngsExp440870', 'AOD1020', 'AOD440', 'AOD550', 'AOD675', 'AOD870', 'AODExtCoarse1020', 'AODExtCoarse440', 'AODExtCoarse675', 'AODExtCoarse870', 'AODExtFine1020', 'AODExtFine440', 'AODExtFine675', 'AODExtFine870', 'AODExtTotal1020', 'AODExtTotal440', 'AODExtTotal675', 'AODExtTotal870', 'DayofYear', 'REffC', 'REffF', 'REffT'
+# - nodoy: 'AngsExp440870', 'AOD1020', 'AOD440', 'AOD550', 'AOD675', 'AOD870', 'AODExtCoarse1020', 'AODExtCoarse440', 'AODExtCoarse675', 'AODExtCoarse870', 'AODExtFine1020', 'AODExtFine440', 'AODExtFine675', 'AODExtFine870', 'AODExtTotal1020', 'AODExtTotal440', 'AODExtTotal675', 'AODExtTotal870', 'REffC', 'REffF', 'REffT'
+# - simplified: 'AngsExp440870', 'AOD1020', 'AOD440', 'AOD675', 'AOD870', 'DayofYear', 'REffC', 'REffF', 'REffT'
+# - v4: 'AngsExp440870', 'AODExtCoarse1020', 'AODExtCoarse440', 'AODExtCoarse675', 'AODExtCoarse870', 'AODExtFine1020', 'AODExtFine440', 'AODExtFine675', 'AODExtFine870', 'AODExtTotal1020', 'AODExtTotal440', 'AODExtTotal675', 'AODExtTotal870', 'DayofYear', 'REffC', 'REffF'
+res_set = "-simplified" # "-v1" # "-nodoy" # "-v4"
+xgb.res = readRDS(paste0(data_dir, "results/xgb-pm25-results",
+                         res_set, ".rds"))
+xgb.cv = xgb.res$CV
+
+xgb.imp = xgb.res$Importance %>%
+  pivot_longer(cols = Gain:SHAP,
+               names_to = "Metric", values_to = "Imp") %>% 
+  group_by(Region, Metric) %>%
+  arrange(desc(Imp), .by_group = TRUE) %>% 
+  slice_head(n = 10) %>% 
+  # justification and color to plot importance labels
+  mutate(just = ifelse(Imp > .5 * max(Imp), 1.05, -.05),
+         colr = ifelse(just == 1.05, "white", "black")) %>% 
+  ungroup()
+```
+
+# Regional Inversion Data
+
+## AOD Histograms (observed vs. interpolated at 550nm)
+
+```{r aod-interpol-histgm}
+wdb.inv %>% select(AOD_440:AOD_1020, AOD_550) %>% 
+  pivot_longer(cols = AOD_440:AOD_550,
+               names_to = "Diam", values_to = "AOD") %>% 
+  ggplot() +
+  geom_histogram(aes(x = AOD, fill = Diam), color = 1, binwidth = .05) +
+  facet_wrap(.~ Diam, ncol = 3) +
+  guides(fill = FALSE) +
+  labs(x = NULL, y = NULL)
+```
+
+## Summary of PM2.5 and AOD (550nm) relationship
+
+```{r pm25-aod-summary}
+wdb.inv %>%
+  filter(!is.na(Region)) %>%
+  group_by(Region) %>%
+  dplyr::summarize(
+    N = n(),
+    pm25_m = round(mean(PM25), 2),
+    pm25_sd = round(sd(PM25), 2),
+    aod_m = round(mean(AOD_550), 3),
+    aod_sd = round(sd(AOD_550), 3),
+    R2 = format(round(cor(PM25, AOD_550)^2, 3),
+                nsmall = 3, trim = TRUE),
+    RMSE = format(round(rmse(lm(PM25 ~ AOD_550)), 3),
+                  nsmall = 3, trim = TRUE),
+    .groups = "drop") %>%
+  mutate(
+    `PM2.5 (SD)` = paste0(pm25_m, " (", pm25_sd, ")"),
+    `AOD (SD)` = paste0(aod_m, " (", aod_sd, ")")) %>% 
+  select(Region, N, `PM2.5 (SD)`, `AOD (SD)`, R2, RMSE) %>% 
+  kable(align = c("l", rep("r", 5)))
+```
+
+```{r regions-sites}
+wdb.inv %>% select(Region, Site_Name) %>% distinct() %>% na.omit() %>% 
+  arrange(Region, Site_Name) %>% 
+  mutate(Site_Name = gsub("_", " ", Site_Name)) %>% 
+  kable(col.names = c("Region", "Site"))
+```
+
+## Correlations (possible multiple collinearity)
+
+```{r corr-plot, fig.width=6.5, fig.height=6.5, dpi = 450}
+wdb.regions[[1]] %>% 
+  select(-Region, - DayofYear) %>% 
+  cor() %>% 
+  corrplot::corrplot(type = "upper", order = "hclust",
+                     tl.col = "black", tl.srt = 45)
+```
+
+# XGBoost Modeling
+
+## Performance
+
+```{r xgb-performance-regions}
+xgb.res$Performance %>% 
+  select(Region, everything()) %>% 
+  mutate(
+    across(R2:RMSE, ~format(.x, nsmall = 3, trim = TRUE)),
+    across(R2:RMSE, ~ifelse(Set == "Test", paste0("**", .x, "**"), .x))) %>% 
+  knitr::kable(align = c("l", "l", rep("r", 4)))
+```
+
+## Cross-validation results
+
+```{r xgb-cv-perf, fig.width = 6.5, fig.height = 6, dpi = 450}
+xgb.res$CV %>% 
+  pivot_longer(cols = R2:RMSE, names_to = "Metric", values_to = "Value") %>% 
+  ggplot(aes(x = Round, y = Value, color = Region)) +
+  geom_path(size = 1) + geom_point(size = 1.5) +
+  facet_wrap(. ~ Metric, ncol = 1, scales = "free_y") +
+  labs(y = "Mean 5-fold CV performance", color = NULL) +
+  theme(legend.position = "top")
+```
+
+## XGBoost feature importance
+
+```{r xgb-imp-1, fig.width = 6.5, fig.height = 8, dpi = 450}
+xgb.imp %>% 
+  filter(Region %in% c("Central", "East")) %>% 
+  ggplot() +
+  geom_bar(aes(y = tidytext::reorder_within(Feature, Imp,
+                                            list(Region, Metric)),
+               weight = Imp), fill = "dodgerblue") +
+  geom_text(aes(y = tidytext::reorder_within(Feature, Imp,
+                                             list(Region, Metric)),
+                label = Feature, x = Imp, hjust = just, color = colr)) +
+  scale_color_manual(values = c("black", "white")) +
+  scale_x_continuous(expand = c(0.001, 0.0005)) +
+  labs(y = NULL, x = NULL) +
+  guides(color = FALSE) +
+  ggh4x::facet_nested_wrap(. ~ Region + Metric, scales = "free", ncol = 2) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+```
+
+```{r xgb-imp-2, fig.width = 6.5, fig.height = 8, dpi = 450}
+xgb.imp %>% 
+  filter(Region %in% c("St. Louis", "West")) %>% 
+  ggplot() +
+  geom_bar(
+    aes(y = tidytext::reorder_within(Feature, Imp, list(Region, Metric)),
+        weight = Imp), fill = "dodgerblue") +
+  geom_text(
+    aes(y = tidytext::reorder_within(Feature, Imp, list(Region, Metric)),
+        label = Feature, x = Imp, hjust = just, color = colr)) +
+  scale_color_manual(values = c("black", "white")) +
+  scale_x_continuous(expand = c(0.001, 0.0005)) +
+  labs(y = NULL, x = NULL) +
+  guides(color = FALSE) +
+  ggh4x::facet_nested_wrap(. ~ Region + Metric, scales = "free", ncol = 2) +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+```
+
+\newpage
+
+# Source code: `xgboost-pm25-regions.R`
+
+```{r code-inv-data, code = readLines("code/XGBOOST/xgboost-pm25-regions.R"), echo = TRUE, eval = FALSE}
+```
